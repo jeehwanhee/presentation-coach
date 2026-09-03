@@ -1,0 +1,94 @@
+# ===========================================================
+# 발표 리허설 코치 — 루트 .gitignore (frontend + backend + ai-service)
+# ===========================================================
+
+# -----------------------------------------------------------
+# 비밀 / 자격증명 (제일 중요 — 절대 커밋 금지)
+# -----------------------------------------------------------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials.*
+secrets.*
+application-secret.properties
+application-secret.yml
+aws.json
+
+
+# -----------------------------------------------------------
+# Frontend — React + Vite + TypeScript
+# -----------------------------------------------------------
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+frontend/.vite/
+frontend/*.local
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+# (node_modules 등은 하위에서 또 잡히도록 아래 공통 규칙도 둠)
+node_modules/
+dist/
+
+
+# -----------------------------------------------------------
+# Backend — Spring (Gradle, Java)
+# -----------------------------------------------------------
+backend/**/build/
+backend/**/.gradle/
+backend/**/out/
+backend/**/bin/
+*.class
+*.jar
+*.war
+!gradle/wrapper/gradle-wrapper.jar
+# 로컬 DB/시크릿이 든 프로퍼티 (아래 설명 참고)
+backend/**/src/main/resources/application-local.properties
+backend/**/src/main/resources/application-local.yml
+
+
+# -----------------------------------------------------------
+# ai-service — Python (FastAPI)
+# -----------------------------------------------------------
+ai-service/__pycache__/
+ai-service/**/__pycache__/
+*.py[cod]
+ai-service/.venv/
+ai-service/venv/
+ai-service/env/
+ai-service/.pytest_cache/
+ai-service/.mypy_cache/
+ai-service/*.egg-info/
+# 모델 가중치·오디오 샘플 등 큰 파일 (원하면 조정)
+ai-service/models/
+*.wav
+*.mp3
+*.webm
+
+
+# -----------------------------------------------------------
+# IDE / 에디터
+# -----------------------------------------------------------
+.idea/
+.vscode/
+*.iml
+*.swp
+
+
+# -----------------------------------------------------------
+# OS
+# -----------------------------------------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+
+
+# -----------------------------------------------------------
+# 로그 / 임시
+# -----------------------------------------------------------
+*.log
+logs/
+tmp/
+temp/
