@@ -1,6 +1,6 @@
 # 발표 리허설 코치
 
-> 대본과의 일치도, 채움말 빈도, 발화 속도등의 리포트로 발표 리허설을 분석해주는 웹 서비스
+> 대본과의 일치도, 채움말 빈도, 발화 속도등의 리포트로 발표 리허설을 분석해주는 웹 서비스  
 > 원티드 AI Championship 2026 출품작
 
 발표 자료(PPTX)와 발표 녹음본을 올리면, AI가 **"슬라이드의 각 주장이 발화에서 근거를 갖고 전달됐는지"**를 원문 인용과 함께 판정하고, 주제 이탈,논리 비약,전달 지표 리포트를 만들어 줍니다.
@@ -31,10 +31,10 @@
 
 ## 기술 스택
 
-**Frontend** React, TypeScript  
-**Backend(Server)** Spring, AWS EC2, SQS, S3  
-**ai-service** Python, FastAPI, STT, LLM  
-**Data** MySQL  
+**Frontend** : React, TypeScript  
+**Backend(Server)** : Spring, AWS EC2, SQS, S3  
+**ai-service** : Python, FastAPI, STT, LLM  
+**Data** : MySQL  
 
 ---
 
@@ -52,5 +52,6 @@
 
 - 지환희 : **Backend / Infra**
 - 함영찬 : **AI / 음성 분석**
+
   
 - **Frontend / Design** — AI 활용
