@@ -3,6 +3,7 @@ package com.konkuk.coach.exception;
 import org.springframework.http.HttpStatus;
 
 public enum PresentationErrorCode implements CustomErrorCode {
+    PRESENTATION_ID_NOT_FOUND(HttpStatus.NOT_FOUND, "PRESENTATION_NOT_FOUND", "존재하지 않는 발표입니다."),
     PRESENTATION_EXPIRED(HttpStatus.GONE, "PRESENTATION_EXPIRED", "리포트가 만료되었습니다."),
     PRESENTATION_NOT_FOUND(HttpStatus.FORBIDDEN, "PRESENTATION_NOT_FOUND", "존재하지 않거나 접근 권한이 없는 발표입니다."),
     INVALID_WORKER_SECRET(HttpStatus.FORBIDDEN, "INVALID_WORKER_SECRET", "워커 시크릿이 일치하지 않습니다."),
