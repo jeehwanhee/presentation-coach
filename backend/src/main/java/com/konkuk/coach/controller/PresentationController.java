@@ -31,11 +31,13 @@ public class PresentationController {
 
     @PostMapping("/{id}/submit")
     public ResponseEntity<PresentationSubmitResponse> submit(
-            @PathVariable Long id, @Valid @RequestBody PresentationSubmitRequest request
+            @PathVariable Long id,
+            @RequestHeader("X-Result-Token") String resultToken,
+            @Valid @RequestBody PresentationSubmitRequest request
     ) {
         return ResponseEntity
                 .status(HttpStatus.ACCEPTED)
-                .body(presentationService.submit(id, request));
+                .body(presentationService.submit(id, resultToken, request));
     }
 
     @GetMapping("/{presentation_id}")

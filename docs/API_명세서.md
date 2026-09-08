@@ -69,13 +69,14 @@
 - 토큰/URL은 여기서 미리 발급(오디오 업로드·상태 조회에 필요). **사용자에게 링크를 노출하는 시점은 분석 완료 후 결과 화면**이고, 그때 "이 링크 저장하세요, 3일 후 만료, 링크 가진 사람은 열람 가능" 안내.
 
 ### 2.2 분석 제출 (업로드 완료 후 큐잉)
-`POST /api/presentations/{presentation_id}/submit`
+`POST /api/presentations/{presentation_id}/submit` — 헤더 `X-Result-Token` 필수.
 ```json
 // Request
 { "audio_duration_ms": 210000 }
 // Response 202
 { "presentation_id": 456, "status": "PROCESSING" }
 ```
+- 토큰 불일치 → **403**.
 - 검증: `audio_duration_ms` ≤ **600000(10분 하드리밋)**, 초과 시 400.
 - 서버가 SQS에 잡 메시지 push(§3.1). **push 성공 시점에 `status`를 `PROCESSING`으로 전환**해 응답한다 — 워커가 별도로 "시작했다"를 알리는 콜백은 없음. `PENDING`은 생성 후 아직 submit 안 된 상태만을 의미.
 

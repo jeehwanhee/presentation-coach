@@ -94,12 +94,13 @@ class PresentationServiceTest {
         presentation.setSlideS3Key("presentations/1/slides.pptx");
         presentation.setAudioS3Key("presentations/1/audio.webm");
         presentation.setScript("스크립트");
+        presentation.setResultToken("token123");
 
         when(presentationRepository.findById(1L)).thenReturn(Optional.of(presentation));
         when(presentationRepository.save(any(Presentation.class))).thenReturn(presentation);
         when(objectMapper.writeValueAsString(any(SqsJobMessage.class))).thenReturn("{}");
 
-        PresentationSubmitResponse response = presentationService.submit(1L, new PresentationSubmitRequest(30_000));
+        PresentationSubmitResponse response = presentationService.submit(1L, "token123", new PresentationSubmitRequest(30_000));
 
         assertThat(response.status()).isEqualTo("PROCESSING");
         assertThat(presentation.getStatus()).isEqualTo(PresentationStatus.PROCESSING);
@@ -112,9 +113,24 @@ class PresentationServiceTest {
         when(presentationRepository.findById(999L)).thenReturn(Optional.empty());
 
         BusinessException e = assertThrows(BusinessException.class,
-                () -> presentationService.submit(999L, new PresentationSubmitRequest(1000)));
+                () -> presentationService.submit(999L, "token123", new PresentationSubmitRequest(1000)));
 
         assertThat(e.getErrorCode()).isEqualTo(PresentationErrorCode.PRESENTATION_ID_NOT_FOUND);
+    }
+
+    @Test
+    @DisplayName("submit: 토큰이 다르면 예외")
+    void submitWrongTokenThrowsException() {
+        Presentation presentation = new Presentation();
+        presentation.setId(1L);
+        presentation.setResultToken("token123");
+        when(presentationRepository.findById(1L)).thenReturn(Optional.of(presentation));
+
+        BusinessException e = assertThrows(BusinessException.class,
+                () -> presentationService.submit(1L, "wrong-token", new PresentationSubmitRequest(30_000)));
+
+        assertThat(e.getErrorCode()).isEqualTo(PresentationErrorCode.PRESENTATION_NOT_FOUND);
+        verify(sqsClient, never()).sendMessage(any(SendMessageRequest.class));
     }
 
     @Test
@@ -122,10 +138,11 @@ class PresentationServiceTest {
     void submitAudioDurationExceededThrowsException() {
         Presentation presentation = new Presentation();
         presentation.setId(1L);
+        presentation.setResultToken("token123");
         when(presentationRepository.findById(1L)).thenReturn(Optional.of(presentation));
 
         BusinessException e = assertThrows(BusinessException.class,
-                () -> presentationService.submit(1L, new PresentationSubmitRequest(600_001)));
+                () -> presentationService.submit(1L, "token123", new PresentationSubmitRequest(600_001)));
 
         assertThat(e.getErrorCode()).isEqualTo(PresentationErrorCode.AUDIO_DURATION_EXCEEDED);
         verify(sqsClient, never()).sendMessage(any(SendMessageRequest.class));

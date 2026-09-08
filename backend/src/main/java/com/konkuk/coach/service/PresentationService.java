@@ -78,9 +78,13 @@ public class PresentationService {
     }
 
     @Transactional
-    public PresentationSubmitResponse submit(Long id, PresentationSubmitRequest request) {
+    public PresentationSubmitResponse submit(Long id, String resultToken, PresentationSubmitRequest request) {
         Presentation presentation = presentationRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(PresentationErrorCode.PRESENTATION_ID_NOT_FOUND));
+
+        if (!presentation.getResultToken().equals(resultToken)) {
+            throw new BusinessException(PresentationErrorCode.PRESENTATION_NOT_FOUND);
+        }
 
         if (request.audioDurationMs() > AUDIO_LIMIT_MS) {
             throw new BusinessException(PresentationErrorCode.AUDIO_DURATION_EXCEEDED,
