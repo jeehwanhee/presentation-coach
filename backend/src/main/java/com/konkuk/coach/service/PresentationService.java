@@ -7,6 +7,7 @@ import com.konkuk.coach.dto.request.PresentationCreateRequest;
 import com.konkuk.coach.dto.request.PresentationSubmitRequest;
 import com.konkuk.coach.dto.request.SqsJobMessage;
 import com.konkuk.coach.dto.response.PresentationCreateResponse;
+import com.konkuk.coach.dto.response.PresentationReportResponse;
 import com.konkuk.coach.dto.response.PresentationSubmitResponse;
 import com.konkuk.coach.exception.BusinessException;
 import com.konkuk.coach.exception.PresentationErrorCode;
@@ -28,6 +29,7 @@ import tools.jackson.databind.ObjectMapper;
 
 import java.security.SecureRandom;
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Base64;
 
 @Service
@@ -127,6 +129,25 @@ public class PresentationService {
                         .bucket(bucket)
                         .key(presentation.getAudioS3Key())
                 .build());
+    }
+
+    public PresentationReportResponse report(Long id, String secret) {
+        Presentation presentation = presentationRepository.findById(id)
+                .orElseThrow(()-> new BusinessException(PresentationErrorCode.PRESENTATION_ID_NOT_FOUND));
+
+        if (!presentation.getResultToken().equals(secret)) {
+            throw new BusinessException(PresentationErrorCode.PRESENTATION_NOT_FOUND);
+        }
+
+        if (presentation.getExpiresAt().isBefore(LocalDateTime.now())) {
+            throw new BusinessException(PresentationErrorCode.PRESENTATION_EXPIRED);
+        }
+
+        return switch (presentation.getStatus()) {
+            case DONE -> PresentationReportResponse.done(presentation.getId(), presentation.getReportJson());
+            case FAILED -> PresentationReportResponse.failed(presentation.getId(), presentation.getErrorCode(), presentation.getErrorMessage());
+            case PENDING, PROCESSING -> PresentationReportResponse.processing(presentation.getId());
+        };
     }
 
     private String presignPutUrl(String key) {
