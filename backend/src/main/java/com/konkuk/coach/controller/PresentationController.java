@@ -8,7 +8,6 @@ import com.konkuk.coach.dto.response.PresentationSubmitResponse;
 import com.konkuk.coach.service.PresentationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

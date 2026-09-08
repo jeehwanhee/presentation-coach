@@ -1,9 +1,10 @@
 # 발표 리허설 코치
 
 > 대본과의 일치도, 채움말 빈도, 발화 속도등의 리포트로 발표 리허설을 분석해주는 웹 서비스  
+
 > 원티드 AI Championship 2026 출품작
 
-발표 자료(PPTX)와 발표 녹음본을 올리면, AI가 **"슬라이드의 각 주장이 발화에서 근거를 갖고 전달됐는지"**를 원문 인용과 함께 판정하고, 주제 이탈, 논리 비약, 전달 지표 리포트를 만들어 줍니다.
+발표 자료(PPTX)와 발표 녹음본을 올리면, AI가 "슬라이드의 각 주장이 발화에서 근거를 갖고 전달됐는지"를 원문 인용과 함께 판정하고, 주제 이탈, 논리 비약, 전달 지표 리포트를 만들어 줍니다.
 
 ---
 
@@ -46,12 +47,23 @@
 4. ai-service에서 STT → 음성 분석 → LLM 정합 검사 → 결과 콜백
 5. 결과 URL로 리포트 조회 (3일 후 만료)
 
+
+---
+
+## 인프라
+
+- **EC2** (ap-northeast-2) — Spring 백엔드를 systemd 서비스(`coach.service`)로 상시 구동, MariaDB도 같은 인스턴스에 설치
+- **CloudFront** — EC2 앞단에서 HTTPS 종단.
+- **S3** — pptx/오디오 파일 저장. 브라우저 → S3 직접 업로드(presigned URL), 분석 완료 후 오디오는 즉시 삭제, 만료된 발표는 배치가 pptx까지 정리
+- **SQS** — 분석 잡 큐. Spring이 발행, AI 워커가 소비
+- **IAM** — 백엔드는 EC2 인스턴스 역할(S3 PutObject/DeleteObject, SQS SendMessage)로 동작, 정적 액세스 키 미사용. AI 워커용 IAM 계정은 별도로 최소 권한(S3 GetObject, SQS Receive/Delete/GetQueueAttributes)만 부여
+- **CI/CD** — GitHub Actions가 `main` push 시 SSH로 EC2에 접속해 pull/build/재시작까지 자동 처리
+
+
 ---
 
 ## 역할
 
 - 지환희 : **Backend / Infra**
 - 함영찬 : **AI / 음성 분석**
-
-  
 - **Frontend / Design** — AI 활용
