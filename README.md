@@ -18,6 +18,7 @@
 - **대본 대조** *(대본 업로드 시)* — 대본과 실제 발화의 차이
 
 ---
+<img width="1000" alt="Image" src="https://github.com/user-attachments/assets/1fcc0f7a-542f-414c-8bd8-781440d52f1d" />
 
 ## 레포 구조
 
