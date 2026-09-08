@@ -1,0 +1,5 @@
+{
+  "presentation_id": 456,
+  "status": "FAILED",
+  "error": { "code": "STT_FAILED", "message": "오디오 인식에 실패했습니다." }
+}

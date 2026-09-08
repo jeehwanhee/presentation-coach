@@ -1,0 +1,7 @@
+{
+  "presentation_id": 456,
+  "slide_s3_key": "presentations/456/slides.pptx",
+  "audio_s3_key": "presentations/456/audio.webm",
+  "script": null,
+  "callback_url": "https://example.cloudfront.net/api/internal/analysis-results"
+}

@@ -1,0 +1,191 @@
+{
+  "transcript": [
+    {
+      "start_ms": 0,
+      "end_ms": 12000,
+      "text": "네 안녕하세요. 오늘 제가 발표한 주제는 저희 팀 프로젝트에 관한 건데요. 시작하기 전에"
+    },
+    {
+      "start_ms": 12000,
+      "end_ms": 24400,
+      "text": "잠깐 소개를 드리자면 그 저희는 발표를 도와주는 서비스를 만들었습니다. 그래서 이제 이게 왜 필요하냐면 그 사람들이 발표를 할 때"
+    },
+    {
+      "start_ms": 24400,
+      "end_ms": 30400,
+      "text": "자기가 뭘 잘못했는지 모르거든요. 예 그렇습니다."
+    }
+  ],
+  "report": {
+    "consistency": {
+      "checks": [
+        {
+          "slide_index": 0,
+          "claim": "발표 리허설 코치 및 팀 프로젝트: 발표를 도와주는 서비스",
+          "verdict": "SUPPORTED",
+          "evidence_span": "발표를 도와주는 서비스를 만들었습니다.",
+          "evidence_at_ms": 12000
+        },
+        {
+          "slide_index": 1,
+          "claim": "발표자들은 스스로 무엇을 잘못했는지 파악하기 어렵습니다",
+          "verdict": "SUPPORTED",
+          "evidence_span": "자기가 뭘 잘못했는지 모르거든요.",
+          "evidence_at_ms": 24400
+        },
+        {
+          "slide_index": 2,
+          "claim": "감사합니다 질문 있으시면 언제든 말씀해주세요",
+          "verdict": "NOT_MENTIONED",
+          "evidence_span": null,
+          "evidence_at_ms": null
+        }
+      ],
+      "supported_count": 2,
+      "total_claims": 3
+    },
+    "off_topic": [],
+    "logic_gaps": [],
+    "delivery": {
+      "wpm": 75.0,
+      "silence_total_ms": 4170,
+      "long_pauses": [
+        {
+          "start_ms": 0,
+          "duration_ms": 1350
+        },
+        {
+          "start_ms": 29100,
+          "duration_ms": 1300
+        }
+      ],
+      "fillers": [
+        {
+          "type": "기타",
+          "text": "[VAD 감지 · 원문 미상]",
+          "at_ms": 1500,
+          "duration_ms": 870
+        },
+        {
+          "type": "기타",
+          "text": "[VAD 감지 · 원문 미상]",
+          "at_ms": 2900,
+          "duration_ms": 1850
+        },
+        {
+          "type": "기타",
+          "text": "[VAD 감지 · 원문 미상]",
+          "at_ms": 6200,
+          "duration_ms": 1530
+        },
+        {
+          "type": "기타",
+          "text": "[VAD 감지 · 원문 미상]",
+          "at_ms": 9780,
+          "duration_ms": 1210
+        },
+        {
+          "type": "기타",
+          "text": "[VAD 감지 · 원문 미상]",
+          "at_ms": 11700,
+          "duration_ms": 830
+        },
+        {
+          "type": "기타",
+          "text": "[VAD 감지 · 원문 미상]",
+          "at_ms": 13820,
+          "duration_ms": 410
+        },
+        {
+          "type": "기타",
+          "text": "[VAD 감지 · 원문 미상]",
+          "at_ms": 14380,
+          "duration_ms": 970
+        },
+        {
+          "type": "기타",
+          "text": "[VAD 감지 · 원문 미상]",
+          "at_ms": 15740,
+          "duration_ms": 290
+        },
+        {
+          "type": "기타",
+          "text": "[VAD 감지 · 원문 미상]",
+          "at_ms": 18100,
+          "duration_ms": 1370
+        },
+        {
+          "type": "기타",
+          "text": "[VAD 감지 · 원문 미상]",
+          "at_ms": 20060,
+          "duration_ms": 730
+        },
+        {
+          "type": "기타",
+          "text": "[VAD 감지 · 원문 미상]",
+          "at_ms": 21720,
+          "duration_ms": 570
+        },
+        {
+          "type": "기타",
+          "text": "[VAD 감지 · 원문 미상]",
+          "at_ms": 23860,
+          "duration_ms": 930
+        },
+        {
+          "type": "기타",
+          "text": "[VAD 감지 · 원문 미상]",
+          "at_ms": 26860,
+          "duration_ms": 790
+        },
+        {
+          "type": "기타",
+          "text": "[VAD 감지 · 원문 미상]",
+          "at_ms": 27800,
+          "duration_ms": 790
+        },
+        {
+          "type": "그",
+          "text": "그",
+          "at_ms": 14230,
+          "duration_ms": 150
+        },
+        {
+          "type": "그",
+          "text": "그",
+          "at_ms": 22290,
+          "duration_ms": 150
+        }
+      ],
+      "filler_count": 16,
+      "volume_variation": {
+        "relative_std": 0.832,
+        "note": "200ms 프레임 RMS 기준 변동계수 0.83 (값이 클수록 성량 기복이 큼 · 절대 기준값은 실데이터로 보정 필요)"
+      }
+    },
+    "script_diff": {
+      "matched_ratio": 0.65,
+      "deviations": [
+        {
+          "at_ms": 0,
+          "script_text": "안녕하세요. 오늘 제가 발표할 주제는 저희 팀 프로젝트입니다.",
+          "spoken_text": "네 안녕하세요. 오늘 제가 발표한 주제는 저희 팀 프로젝트에 관한 건데요.",
+          "kind": "변경"
+        },
+        {
+          "at_ms": 12000,
+          "script_text": "저희는 발표 스킬을 분석해주는 서비스를 만들었습니다.",
+          "spoken_text": "그 저희는 발표를 도와주는 서비스를 만들었습니다.",
+          "kind": "변경"
+        },
+        {
+          "at_ms": 24400,
+          "script_text": "저희 팀은 총 세 명으로 구성되어 있습니다.",
+          "spoken_text": "자기가 뭘 잘못했는지 모르거든요. 예 그렇습니다.",
+          "kind": "생략"
+        }
+      ]
+    }
+  },
+  "elapsed_seconds": 10.7
+}

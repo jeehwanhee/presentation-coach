@@ -1,0 +1,105 @@
+{
+  "wpm": 75.0,
+  "silence_total_ms": 4170,
+  "long_pauses": [
+    {
+      "start_ms": 0,
+      "duration_ms": 1350
+    },
+    {
+      "start_ms": 29100,
+      "duration_ms": 1300
+    }
+  ],
+  "fillers": [
+    {
+      "type": "기타",
+      "text": "[VAD 감지 · 원문 미상]",
+      "at_ms": 1500,
+      "duration_ms": 870
+    },
+    {
+      "type": "기타",
+      "text": "[VAD 감지 · 원문 미상]",
+      "at_ms": 2900,
+      "duration_ms": 1850
+    },
+    {
+      "type": "기타",
+      "text": "[VAD 감지 · 원문 미상]",
+      "at_ms": 6200,
+      "duration_ms": 1530
+    },
+    {
+      "type": "기타",
+      "text": "[VAD 감지 · 원문 미상]",
+      "at_ms": 9780,
+      "duration_ms": 1210
+    },
+    {
+      "type": "기타",
+      "text": "[VAD 감지 · 원문 미상]",
+      "at_ms": 11700,
+      "duration_ms": 830
+    },
+    {
+      "type": "기타",
+      "text": "[VAD 감지 · 원문 미상]",
+      "at_ms": 13820,
+      "duration_ms": 410
+    },
+    {
+      "type": "기타",
+      "text": "[VAD 감지 · 원문 미상]",
+      "at_ms": 14380,
+      "duration_ms": 970
+    },
+    {
+      "type": "기타",
+      "text": "[VAD 감지 · 원문 미상]",
+      "at_ms": 15740,
+      "duration_ms": 290
+    },
+    {
+      "type": "기타",
+      "text": "[VAD 감지 · 원문 미상]",
+      "at_ms": 18100,
+      "duration_ms": 1370
+    },
+    {
+      "type": "기타",
+      "text": "[VAD 감지 · 원문 미상]",
+      "at_ms": 20060,
+      "duration_ms": 730
+    },
+    {
+      "type": "기타",
+      "text": "[VAD 감지 · 원문 미상]",
+      "at_ms": 21720,
+      "duration_ms": 570
+    },
+    {
+      "type": "기타",
+      "text": "[VAD 감지 · 원문 미상]",
+      "at_ms": 23860,
+      "duration_ms": 930
+    },
+    {
+      "type": "기타",
+      "text": "[VAD 감지 · 원문 미상]",
+      "at_ms": 26860,
+      "duration_ms": 790
+    },
+    {
+      "type": "기타",
+      "text": "[VAD 감지 · 원문 미상]",
+      "at_ms": 27800,
+      "duration_ms": 790
+    }
+  ],
+  "filler_count": 14,
+  "volume_variation": {
+    "relative_std": 0.832,
+    "note": "200ms 프레임 RMS 기준 변동계수 0.83 (값이 클수록 성량 기복이 큼 · 절대 기준값은 실데이터로 보정 필요)"
+  }
+}

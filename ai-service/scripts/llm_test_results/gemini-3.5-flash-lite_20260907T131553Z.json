@@ -1,0 +1,62 @@
+{
+  "consistency": {
+    "supported_count": 3,
+    "total_claims": 3,
+    "checks": [
+      {
+        "slide_index": 0,
+        "claim": "사용자 이탈률을 30% 낮췄습니다.",
+        "verdict": "SUPPORTED",
+        "evidence_span": "저희 서비스는 그 사용자 이탈률을 30퍼센트 낮췄습니다",
+        "evidence_at_ms": 2800
+      },
+      {
+        "slide_index": 1,
+        "claim": "실시간 알림과 맞춤 추천을 제공합니다.",
+        "verdict": "SUPPORTED",
+        "evidence_span": "실시간 알림 기능도 있습니다",
+        "evidence_at_ms": 10900
+      },
+      {
+        "slide_index": 2,
+        "claim": "해외 시장 진출을 준비 중입니다.",
+        "verdict": "SUPPORTED",
+        "evidence_span": "다음 분기에는 해외 진출도 준비하고 있어요",
+        "evidence_at_ms": 13200
+      }
+    ]
+  },
+  "off_topic": [],
+  "logic_gaps": [],
+  "script_diff": {
+    "matched_ratio": 0.85,
+    "deviations": [
+      {
+        "at_ms": 2800,
+        "script_text": "저희 서비스는 사용자 이탈률을 30퍼센트 낮췄습니다.",
+        "spoken_text": "저희 서비스는 그 사용자 이탈률을 30퍼센트 낮췄습니다",
+        "kind": "추가"
+      },
+      {
+        "at_ms": 6600,
+        "script_text": "",
+        "spoken_text": "그리고 음 그 그게 저희가 제일 자신있는 부분인데요",
+        "kind": "추가"
+      }
+    ]
+  },
+  "group_b_fillers": [
+    {
+      "type": "그",
+      "text": "그",
+      "at_ms": 3800,
+      "duration_ms": 400
+    },
+    {
+      "type": "그",
+      "text": "그",
+      "at_ms": 7600,
+      "duration_ms": 400
+    }
+  ]
+}

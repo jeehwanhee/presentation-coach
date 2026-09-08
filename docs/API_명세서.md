@@ -39,7 +39,7 @@
 |---|---|
 | `presentation.status` | `PENDING` · `PROCESSING` · `DONE` · `FAILED` |
 | `consistency.verdict` | `SUPPORTED`(뒷받침됨) · `NOT_MENTIONED`(미언급) · `NO_BASIS`(근거없음) |
-| `filler.type` | `음` · `어` · `그` · `기타` |
+| `filler.type` | `음` · `어` · `그` · `저` · `뭐` · `뭔가` · `좀` · `막` · `그냥` · `같다` · `기타` |
 | `script_diff.kind` | `생략` · `추가` · `변경` |
 | `error.code` | `STT_FAILED` · `PPTX_PARSE_FAILED` · `AUDIO_NOT_FOUND` · `LLM_FAILED` · `TIMEOUT` |
 
@@ -140,6 +140,10 @@
 }
 ```
 - `fillers[].text`: 실제 발화 원문 어절. `음`/`어`/`그`도 채워서 보낸다(디버깅·QA용, 프론트 노출은 선택). 특히 `기타`는 이 필드가 없으면 뭐가 왜 기타로 묶였는지 알 수 없으니 필수로 채운다.
+- `filler.type` 탐지 방식은 두 갈래로 나뉜다 (2026-09-07 확정):
+  - **`음`/`어`** — STT가 후처리 과정에서 텍스트에서 지워버리는 게 실측으로 확인됨(`noiseFiltering: false`로도 동일). 그래서 STT 텍스트만으론 못 잡고, 워드 타임스탬프 사이 빈틈을 VAD(Silero VAD)로 교차 검증해서 탐지한다. `text` 필드엔 정확한 원문을 알 수 없으므로 추정 표시가 들어갈 수 있음.
+  - **`그`/`저`/`뭐`/`뭔가`/`좀`/`막`/`그냥`/`같다`** — 실제 사전 단어라 STT 텍스트에 항상 남는다(VAD 불필요). 다만 "그 사람이"(지시대명사)처럼 필러가 아닌 정상 용법과 헷갈리기 쉬워서, 단순 문자열 매칭이 아니라 **LLM이 문맥을 보고 필러성 사용인지 판단**해서 채운다(정합성 판정과 같은 LLM 호출 단계에서 처리).
+  - `기타`는 위 두 그룹으로 안 걸러지는 나머지 채움말/머뭇거림용 catch-all.
 - `script_diff.deviations[].kind`는 §1 Enum 표의 `생략`/`추가`/`변경` 중 하나.
 
 ---
