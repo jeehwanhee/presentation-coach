@@ -1,6 +1,7 @@
 package com.konkuk.coach.controller;
 
 import com.konkuk.coach.dto.response.PresentationCreateResponse;
+import com.konkuk.coach.dto.response.PresentationReportResponse;
 import com.konkuk.coach.dto.response.PresentationSubmitResponse;
 import com.konkuk.coach.exception.BusinessException;
 import com.konkuk.coach.exception.PresentationErrorCode;
@@ -14,9 +15,11 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
 
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -106,5 +109,66 @@ class PresentationControllerTest {
                                 """))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error.code").value("AUDIO_DURATION_EXCEEDED"));
+    }
+
+    @Test
+    @DisplayName("GET /api/presentations/{id}: DONE이면 200과 report를 반환한다")
+    void reportReturnsReportForDone() throws Exception {
+        when(presentationService.report(eq(1L), eq("token123")))
+                .thenReturn(PresentationReportResponse.done(1L, "{\"score\":90}"));
+
+        mockMvc.perform(get("/api/presentations/1")
+                        .header("X-Result-Token", "token123"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("DONE"))
+                .andExpect(jsonPath("$.report.score").value(90));
+    }
+
+    @Test
+    @DisplayName("GET /api/presentations/{id}: PROCESSING이면 report가 null이다")
+    void reportReturnsNullReportForProcessing() throws Exception {
+        when(presentationService.report(eq(1L), eq("token123")))
+                .thenReturn(PresentationReportResponse.processing(1L));
+
+        mockMvc.perform(get("/api/presentations/1")
+                        .header("X-Result-Token", "token123"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("PROCESSING"))
+                .andExpect(jsonPath("$.report").value(nullValue()));
+    }
+
+    @Test
+    @DisplayName("GET /api/presentations/{id}: 토큰이 다르면 403")
+    void reportWithWrongTokenReturns403() throws Exception {
+        when(presentationService.report(eq(1L), eq("wrong")))
+                .thenThrow(new BusinessException(PresentationErrorCode.PRESENTATION_NOT_FOUND));
+
+        mockMvc.perform(get("/api/presentations/1")
+                        .header("X-Result-Token", "wrong"))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.error.code").value("PRESENTATION_NOT_FOUND"));
+    }
+
+    @Test
+    @DisplayName("GET /api/presentations/{id}: 만료됐으면 410")
+    void reportExpiredReturns410() throws Exception {
+        when(presentationService.report(eq(1L), eq("token123")))
+                .thenThrow(new BusinessException(PresentationErrorCode.PRESENTATION_EXPIRED));
+
+        mockMvc.perform(get("/api/presentations/1")
+                        .header("X-Result-Token", "token123"))
+                .andExpect(status().isGone())
+                .andExpect(jsonPath("$.error.code").value("PRESENTATION_EXPIRED"));
+    }
+
+    @Test
+    @DisplayName("GET /api/presentations/{id}: 존재하지 않으면 404")
+    void reportNotFoundReturns404() throws Exception {
+        when(presentationService.report(eq(999L), eq("token123")))
+                .thenThrow(new BusinessException(PresentationErrorCode.PRESENTATION_ID_NOT_FOUND));
+
+        mockMvc.perform(get("/api/presentations/999")
+                        .header("X-Result-Token", "token123"))
+                .andExpect(status().isNotFound());
     }
 }

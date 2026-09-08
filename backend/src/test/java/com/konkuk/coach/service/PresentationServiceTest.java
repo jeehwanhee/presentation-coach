@@ -7,6 +7,7 @@ import com.konkuk.coach.dto.request.PresentationCreateRequest;
 import com.konkuk.coach.dto.request.PresentationSubmitRequest;
 import com.konkuk.coach.dto.request.SqsJobMessage;
 import com.konkuk.coach.dto.response.PresentationCreateResponse;
+import com.konkuk.coach.dto.response.PresentationReportResponse;
 import com.konkuk.coach.dto.response.PresentationSubmitResponse;
 import com.konkuk.coach.exception.BusinessException;
 import com.konkuk.coach.exception.ErrorBody;
@@ -29,6 +30,7 @@ import software.amazon.awssdk.services.sqs.model.SendMessageRequest;
 import tools.jackson.databind.ObjectMapper;
 
 import java.net.URI;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -179,5 +181,97 @@ class PresentationServiceTest {
 
         assertThat(presentation.getErrorCode()).isEqualTo("STT_FAILED");
         assertThat(presentation.getErrorMessage()).isEqualTo("음성 인식 실패");
+    }
+
+    @Test
+    @DisplayName("report: DONE이면 reportJson을 반환한다")
+    void reportDoneReturnsReportJson() {
+        Presentation presentation = new Presentation();
+        presentation.setId(1L);
+        presentation.setStatus(PresentationStatus.DONE);
+        presentation.setResultToken("token123");
+        presentation.setExpiresAt(LocalDateTime.now().plusDays(1));
+        presentation.setReportJson("{\"score\":90}");
+        when(presentationRepository.findById(1L)).thenReturn(Optional.of(presentation));
+
+        PresentationReportResponse response = presentationService.report(1L, "token123");
+
+        assertThat(response.status()).isEqualTo("DONE");
+        assertThat(response.report()).isEqualTo("{\"score\":90}");
+    }
+
+    @Test
+    @DisplayName("report: FAILED면 error를 반환한다")
+    void reportFailedReturnsError() {
+        Presentation presentation = new Presentation();
+        presentation.setId(1L);
+        presentation.setStatus(PresentationStatus.FAILED);
+        presentation.setResultToken("token123");
+        presentation.setExpiresAt(LocalDateTime.now().plusDays(1));
+        presentation.setErrorCode("STT_FAILED");
+        presentation.setErrorMessage("음성 인식 실패");
+        when(presentationRepository.findById(1L)).thenReturn(Optional.of(presentation));
+
+        PresentationReportResponse response = presentationService.report(1L, "token123");
+
+        assertThat(response.status()).isEqualTo("FAILED");
+        assertThat(response.error().code()).isEqualTo("STT_FAILED");
+    }
+
+    @Test
+    @DisplayName("report: PROCESSING이면 report가 null이다")
+    void reportProcessingReturnsNullReport() {
+        Presentation presentation = new Presentation();
+        presentation.setId(1L);
+        presentation.setStatus(PresentationStatus.PROCESSING);
+        presentation.setResultToken("token123");
+        presentation.setExpiresAt(LocalDateTime.now().plusDays(1));
+        when(presentationRepository.findById(1L)).thenReturn(Optional.of(presentation));
+
+        PresentationReportResponse response = presentationService.report(1L, "token123");
+
+        assertThat(response.status()).isEqualTo("PROCESSING");
+        assertThat(response.report()).isNull();
+    }
+
+    @Test
+    @DisplayName("report: 토큰이 다르면 예외")
+    void reportWrongTokenThrowsException() {
+        Presentation presentation = new Presentation();
+        presentation.setId(1L);
+        presentation.setResultToken("token123");
+        presentation.setExpiresAt(LocalDateTime.now().plusDays(1));
+        when(presentationRepository.findById(1L)).thenReturn(Optional.of(presentation));
+
+        BusinessException e = assertThrows(BusinessException.class,
+                () -> presentationService.report(1L, "wrong-token"));
+
+        assertThat(e.getErrorCode()).isEqualTo(PresentationErrorCode.PRESENTATION_NOT_FOUND);
+    }
+
+    @Test
+    @DisplayName("report: 존재하지 않는 id면 예외")
+    void reportNotFoundThrowsException() {
+        when(presentationRepository.findById(999L)).thenReturn(Optional.empty());
+
+        BusinessException e = assertThrows(BusinessException.class,
+                () -> presentationService.report(999L, "token123"));
+
+        assertThat(e.getErrorCode()).isEqualTo(PresentationErrorCode.PRESENTATION_ID_NOT_FOUND);
+    }
+
+    @Test
+    @DisplayName("report: 만료됐으면 예외")
+    void reportExpiredThrowsException() {
+        Presentation presentation = new Presentation();
+        presentation.setId(1L);
+        presentation.setResultToken("token123");
+        presentation.setExpiresAt(LocalDateTime.now().minusDays(1));
+        when(presentationRepository.findById(1L)).thenReturn(Optional.of(presentation));
+
+        BusinessException e = assertThrows(BusinessException.class,
+                () -> presentationService.report(1L, "token123"));
+
+        assertThat(e.getErrorCode()).isEqualTo(PresentationErrorCode.PRESENTATION_EXPIRED);
     }
 }
