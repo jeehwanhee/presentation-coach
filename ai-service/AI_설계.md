@@ -142,6 +142,15 @@ STT가 텍스트에서 완전히 지워버리는 순수 발성이라(§1.1), 텍
 - **`WORKER_SECRET` 실제 백엔드 대조 검증 완료 (2026-09-07)** — `scripts/test_worker_secret.py`로 실존하지 않는 `presentation_id`(999999999)에 콜백을 보내봐서 확인. 응답이 `404 PRESENTATION_NOT_FOUND`로 나옴 → 시크릿 검증은 통과했고 id가 없어서 나는 정상 응답(백엔드 `PresentationErrorCode.java` 기준 시크릿이 틀리면 `403 INVALID_WORKER_SECRET`이 나왔을 것). 실제 데이터는 안 건드림. **콜백 경로(네트워크+인증)는 이제 실배포 백엔드 기준으로 검증 완료.**
 - **아직 실제로 못 돌려본 이유**: `S3_BUCKET` 실제 값이 아직 없음 — 이거 하나만 받으면 SQS 워커 전체를 실사용 가능한 상태.
 
+### 4.3 실배포 백엔드 통한 SQS 종단 실측 검증 완료 (2026-09-08)
+
+`scripts/test_e2e_via_backend.py`로 실제 배포된 백엔드(CloudFront) 상대로 **발표 생성 → S3 업로드 → submit(SQS push) → 워커(`python -m app.clients.sqs_consumer`)가 실제로 잡을 처리 → 콜백 → GET 폴링으로 최종 리포트 수신**까지 전 구간을 처음으로 실측 성공(`presentation_id=6`).
+
+- **`/submit` 500 버그 원인 규명 및 해결.** 업스트림 커밋 `submit에 result token 추가`(2026-09-08 병합)로 `POST .../submit`이 `X-Result-Token` 헤더를 필수 파라미터로 요구하도록 바뀜. 백엔드 `GlobalExceptionHandler`는 `BusinessException`/`MethodArgumentNotValidException` 이외의 모든 예외를 `@ExceptionHandler(Exception.class)` catch-all이 잡아서 그냥 `500 INTERNAL_ERROR`로 응답하도록 되어 있어서, 헤더 누락 시 Spring이 던지는 `MissingRequestHeaderException`도 제대로 된 400/403이 아니라 500으로 나왔던 것. 이전에 재현했던 `id=4`/`id=5`의 500(당시 IAM 권한 문제로 추정)도 사실은 이 헤더 누락이었을 가능성이 높음 — 헤더를 추가하자 바로 202로 정상 동작함. 결과적으로 팀원이 처음 제기했던 "X-Result-Token 헤더가 없어서" 가설이 맞았음(당시엔 컨트롤러 코드에 해당 파라미터가 없어서 반박했었는데, 그 사이 팀원이 실제로 그 기능을 추가·머지함).
+- `test_e2e_via_backend.py` 개정: 1단계(발표 생성) 응답의 `result_token`을 그대로 3단계 submit 헤더(`X-Result-Token`)에 실어 보내도록 수정, 새로 구현된 `GET /api/presentations/{id}`(§2.3)로 4단계 상태 폴링(최대 5회, 3초 간격)을 추가.
+- **결과(id=6)**: submit 202 → 워커가 잡 처리 → GET 폴링 3회 PROCESSING 후 4회째 DONE, 최종 리포트 정상 수신. transcript/필러/정합성 판정 내용은 §4.1의 로컬 실행 결과와 동일(같은 `test01.m4a` 입력이므로 재현성 확인됨 — 그룹A 14개, 그룹B "그" 2개 @14230ms·@22290ms, consistency 2/3 SUPPORTED 등 전부 일치).
+- **이걸로 §5의 "백엔드 `/submit` 500 블로킹" 이슈 해소.** ai-service 쪽에서 실측 가능한 전체 검증(로컬 파이프라인 + 실배포 SQS 종단)이 전부 완료됨.
+
 ## 5. 남은 이슈
 
 - [x] Clova STT word-level 타임스탬프 지원 확인 (§1.1, 2026-09-07)
@@ -167,6 +176,6 @@ STT가 텍스트에서 완전히 지워버리는 순수 발성이라(§1.1), 텍
 - [x] **`script_diff` 실측 검증 완료 (2026-09-08)** — 실제 발화 내용 기반으로 일부러 변경/추가/생략 3종류를 섞은 대본(`scripts/test_scripts/test01_script.txt`)으로 전체 파이프라인 실행. 결과: **변경 2건(그 중 1건은 의도한 것, 1건은 사소한 어미 차이까지 잡은 것이라 판단 애매) + 생략 1건(의도한 것, 정확) 검출**, 하지만 **의도적으로 심은 "추가" 케이스(실제 발화에만 있고 대본엔 없는 "예 그렇습니다")는 완전히 놓침** — `추가` 타입 검출이 프롬프트 단에서 약한 것으로 보임, 추후 개선 필요.
 - [ ] ai-service 자체 배포 방식 결정 — `.github/workflows/deploy.yml`은 현재 backend만 대상. 같은 EC2에 systemd로 올릴지, Docker로 할지, 배포 파이프라인은 어떻게 붙일지 지환희와 상의 필요.
 - [x] **S3 다운로드 실측 검증 완료 (2026-09-08)** — `scripts/test_s3_download.py 4`로 `presentations/4/slides.pptx`·`.../audio.webm`(백엔드 `/submit` 실패 전에 이미 presigned URL로 업로드됐던 실제 객체) 다운로드 성공. `S3_BUCKET` 설정 + `coach-ai` IAM 자격증명(boto3 기본 체인) 실동작 확인.
-- [ ] **백엔드 `POST /submit` 500 에러로 SQS 종단 테스트만 블로킹 중 (2026-09-08)** — `sendJobMessage()`(SQS 전송) 단에서 터지는 것으로 코드 추적됨, EC2 인스턴스 role의 `sqs:SendMessage` 권한 누락 의심. 루트 경로(`/`)도 동일한 커스텀 500이 나는 것으로 봐서 더 넓은 범위 문제일 수도 있음. **`presentation_id=4`, `id=5` 두 번 다 재현됨(2026-09-08 재시도) — 일시적 문제 아니라 확정적으로 재현되는 버그.** 지환희 확인 대기, 서버 로그 필요.
-  **이거 하나만 빼면 ai-service 쪽에서 미리 해볼 수 있는 검증은 다 끝남**: 전체 파이프라인(Clova→VAD∥LLM) 실측 성공, script_diff 실측 검증 완료, 그룹B 필러 정확도 실측 검증 완료(2/2), S3 다운로드 실측 검증 완료, WORKER_SECRET 실배포 대조 검증 완료. 남은 건 SQS push(백엔드)만 고쳐지면 되는 상태.
+- [x] **백엔드 `POST /submit` 500 에러 원인 규명 + 해결 (2026-09-08)** — 처음엔 `sendJobMessage()`(SQS 전송) 단 IAM 권한 문제로 추정했었으나, 실제 원인은 백엔드에 새로 추가된 `X-Result-Token` 헤더 필수화(§4.3)였음. 헤더를 추가해서 보내자 즉시 202로 정상 동작 확인.
+- [x] **실배포 백엔드 통한 SQS 종단 실측 검증 완료 (§4.3, 2026-09-08)** — `test_e2e_via_backend.py`로 발표 생성→S3 업로드→submit→워커 처리→콜백→GET 폴링까지 전 구간 실측 성공(`id=6`, 202→DONE). 이걸로 ai-service 쪽에서 미리 해볼 수 있는 검증은 다 끝남: 전체 파이프라인(Clova→VAD∥LLM) 실측 성공, script_diff 실측 검증 완료, 그룹B 필러 정확도 실측 검증 완료(2/2), S3 다운로드 실측 검증 완료, WORKER_SECRET 실배포 대조 검증 완료, 실배포 SQS 종단 검증 완료.
 - [x] `docs/API_명세서.md`에 반영된 계약(§presentation_id 정수화, PROCESSING 전이, error.code 등)에 맞춰 구현 — `job.py`/`report.py` 스키마가 백엔드 실제 DTO와 필드 단위로 일치함을 깃허브 코드 대조로 확인(§4.2)
