@@ -24,15 +24,18 @@
 }
 
 .brand {
-  font-weight: 600;
-  font-size: 16px;
+  font-family: var(--heading);
+  font-weight: 800;
+  font-size: 17px;
+  letter-spacing: -0.2px;
   color: var(--text-h);
 }
 
 .step-pill {
-  font-size: 13px;
+  font-family: var(--mono);
+  font-size: 12.5px;
   color: var(--text);
-  background: var(--code-bg);
+  background: var(--surface-2);
   border: 1px solid var(--border);
   border-radius: 999px;
   padding: 4px 12px;
@@ -40,6 +43,8 @@
 
 .app-heading h2 {
   margin-bottom: 4px;
+  font-size: 22px;
+  letter-spacing: -0.3px;
 }
 
 .app-heading p {
@@ -72,8 +77,14 @@
   padding: 10px 14px;
   border-radius: 10px;
   border: 1px solid var(--border);
-  background: var(--bg);
+  background: var(--surface);
   color: var(--text-h);
+}
+
+.field input[type="text"]:focus,
+.script-body textarea:focus {
+  outline: 2px solid var(--accent-border);
+  outline-offset: 1px;
 }
 
 .field-hint {
@@ -85,6 +96,7 @@
   border: 1px solid var(--border);
   border-radius: 10px;
   overflow: hidden;
+  background: var(--surface);
 }
 
 .script-toggle {
@@ -93,7 +105,7 @@
   align-items: center;
   gap: 8px;
   padding: 12px 14px;
-  background: var(--code-bg);
+  background: var(--surface-2);
   border: none;
   font: inherit;
   font-size: 14px;
@@ -104,6 +116,7 @@
 
 .tag.optional {
   font-size: 11px;
+  font-weight: 600;
   padding: 2px 8px;
   border-radius: 999px;
   background: var(--accent-bg);
@@ -123,26 +136,28 @@
 }
 
 .error-text {
-  color: #d33;
+  color: var(--danger);
   font-size: 13px;
 }
 
 .cta-button {
-  font: inherit;
-  font-weight: 600;
+  font-family: var(--heading);
+  font-weight: 700;
   font-size: 15px;
-  padding: 12px 20px;
+  padding: 12px 22px;
   border-radius: 10px;
   border: none;
   background: var(--accent);
   color: #fff;
   cursor: pointer;
   align-self: flex-start;
+  box-shadow: var(--shadow);
 }
 
 .cta-button:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+  box-shadow: none;
 }
 
 /* STEP 2 업로드 */
@@ -153,6 +168,7 @@
 }
 
 .upload-card {
+  background: var(--surface);
   border: 2px solid var(--border);
   border-radius: 12px;
   padding: 16px;
@@ -163,19 +179,20 @@
 }
 
 .upload-card.status-done {
-  border-color: #2ea043;
+  border-color: var(--success);
 }
 
 .upload-card.status-error {
-  border-color: #d33;
+  border-color: var(--danger);
 }
 
 .num-badge {
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  background: var(--code-bg);
+  background: var(--surface-2);
   color: var(--text);
+  font-family: var(--mono);
   font-size: 12px;
   font-weight: 600;
   display: flex;
@@ -194,7 +211,7 @@
   padding: 14px;
   border-radius: 8px;
   border: 1px dashed var(--border);
-  background: var(--code-bg);
+  background: var(--surface-2);
   color: var(--text);
   cursor: pointer;
 }
@@ -220,6 +237,11 @@
 .progress-text {
   font-size: 14px;
   color: var(--text);
+}
+
+.progress-text b {
+  font-family: var(--mono);
+  color: var(--text-h);
 }
 
 /* STEP 3 */
@@ -251,7 +273,7 @@
 .share-notice {
   font-size: 13px;
   color: var(--text);
-  background: var(--code-bg);
+  background: var(--surface-2);
   border-radius: 10px;
   padding: 12px 14px;
   display: flex;
@@ -282,8 +304,9 @@
 }
 
 .section-summary {
-  font-size: 13px;
-  font-weight: 400;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  font-weight: 500;
   color: var(--text);
 }
 
@@ -301,6 +324,7 @@
 .consistency-list li,
 .diff-list li,
 .simple-list li {
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 12px 14px;
@@ -318,19 +342,20 @@
   font-weight: 600;
   padding: 2px 8px;
   border-radius: 999px;
-  background: var(--code-bg);
+  background: var(--surface-2);
 }
 
 .verdict-SUPPORTED .verdict-badge {
-  color: #2ea043;
+  color: var(--success);
 }
 
 .verdict-NOT_MENTIONED .verdict-badge,
 .verdict-NO_BASIS .verdict-badge {
-  color: #d33;
+  color: var(--danger);
 }
 
 .slide-tag {
+  font-family: var(--mono);
   font-size: 12px;
   color: var(--text);
 }
@@ -360,9 +385,11 @@
 }
 
 .stat-value {
+  font-family: var(--mono);
   font-size: 22px;
   font-weight: 600;
   color: var(--text-h);
+  font-variant-numeric: tabular-nums;
 }
 
 .stat-label {
