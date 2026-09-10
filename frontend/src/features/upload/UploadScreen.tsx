@@ -2,38 +2,42 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { StepHeader } from "../../components/StepHeader";
 import { UploadCard } from "./UploadCard";
-import { useFileUpload, readAudioDurationMs } from "./useFileUpload";
-import { submitPresentation } from "../../api/presentations";
-import { usePresentationSession, type PresentationSession } from "../../session/usePresentationSession";
+import { readAudioDurationMs } from "./useFileUpload";
+import { createPresentation, submitPresentation, uploadToPresignedUrl } from "../../api/presentations";
+import { usePresentationSession } from "../../session/usePresentationSession";
 import { ApiError } from "../../api/client";
 
 const AUDIO_DURATION_LIMIT_MS = 600_000; // 10분, docs/API_명세서.md §2.2
 
 export function UploadScreen() {
   const navigate = useNavigate();
-  const { getSession } = usePresentationSession();
+  const { getDraft, clearDraft } = usePresentationSession();
 
-  const [session, setLocalSession] = useState<PresentationSession | null>(null);
+  const [title, setTitle] = useState<string | null>(null);
+  const [scriptOpen, setScriptOpen] = useState(false);
+  const [script, setScript] = useState("");
+
+  const [slideFile, setSlideFile] = useState<File | null>(null);
+  const [audioFile, setAudioFile] = useState<File | null>(null);
   const [audioDurationMs, setAudioDurationMs] = useState<number | null>(null);
   const [durationError, setDurationError] = useState<string | null>(null);
+
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   useEffect(() => {
-    const s = getSession();
-    if (!s) {
+    const draft = getDraft();
+    if (!draft) {
       navigate("/", { replace: true });
       return;
     }
-    setLocalSession(s);
-  }, [getSession, navigate]);
-
-  const slideUpload = useFileUpload(session?.slideUploadUrl ?? "");
-  const audioUpload = useFileUpload(session?.audioUploadUrl ?? "");
+    setTitle(draft.title);
+  }, [getDraft, navigate]);
 
   async function handleAudioSelect(file: File) {
     setDurationError(null);
     setAudioDurationMs(null);
+    setAudioFile(null);
     try {
       const durationMs = await readAudioDurationMs(file);
       if (durationMs > AUDIO_DURATION_LIMIT_MS) {
@@ -41,23 +45,31 @@ export function UploadScreen() {
         return;
       }
       setAudioDurationMs(durationMs);
-      await audioUpload.upload(file);
+      setAudioFile(file);
     } catch {
       setDurationError("오디오 길이를 확인하지 못했어요.");
     }
   }
 
-  const requiredDone = slideUpload.status === "done" && audioUpload.status === "done" && audioDurationMs !== null;
-  const completedCount = [slideUpload.status === "done", audioUpload.status === "done"].filter(Boolean).length;
+  const requiredDone = Boolean(slideFile) && Boolean(audioFile) && audioDurationMs !== null;
+  const completedCount = [Boolean(slideFile), Boolean(audioFile)].filter(Boolean).length;
 
   async function handleStartAnalysis() {
-    if (!session || !requiredDone || audioDurationMs === null) return;
+    if (!title || !slideFile || !audioFile || audioDurationMs === null || !requiredDone) return;
 
     setSubmitting(true);
     setSubmitError(null);
     try {
-      await submitPresentation(session.presentationId, session.resultToken, audioDurationMs);
-      navigate(`/r/${session.presentationId}?token=${session.resultToken}`);
+      const created = await createPresentation({
+        title,
+        script: script.trim() ? script.trim() : null,
+      });
+      await uploadToPresignedUrl(created.slide_upload_url, slideFile);
+      await uploadToPresignedUrl(created.audio_upload_url, audioFile);
+      await submitPresentation(created.presentation_id, created.result_token, audioDurationMs);
+
+      clearDraft();
+      navigate(`/r/${created.presentation_id}?token=${created.result_token}`);
     } catch (err) {
       setSubmitError(
         err instanceof ApiError ? err.message : "제출하지 못했어요. 다시 시도해주세요.",
@@ -67,7 +79,7 @@ export function UploadScreen() {
     }
   }
 
-  if (!session) return null;
+  if (!title) return null;
 
   return (
     <div className="app-content">
@@ -83,20 +95,45 @@ export function UploadScreen() {
           num={1}
           title="발표 슬라이드 (PPT)"
           accept=".ppt,.pptx"
-          status={slideUpload.status}
-          fileName={slideUpload.fileName}
-          errorMessage={slideUpload.errorMessage}
-          onSelect={(file) => slideUpload.upload(file)}
+          status={submitting ? "uploading" : slideFile ? "selected" : "empty"}
+          fileName={slideFile?.name ?? null}
+          errorMessage={null}
+          onSelect={(file) => setSlideFile(file)}
         />
         <UploadCard
           num={2}
           title="발표 음성 녹음"
           accept="audio/*"
-          status={audioUpload.status}
-          fileName={audioUpload.fileName}
-          errorMessage={audioUpload.errorMessage ?? durationError}
+          status={submitting ? "uploading" : durationError ? "error" : audioFile ? "selected" : "empty"}
+          fileName={audioFile?.name ?? null}
+          errorMessage={durationError}
           onSelect={handleAudioSelect}
         />
+      </div>
+
+      <div className="script-field">
+        <button
+          type="button"
+          className="script-toggle"
+          onClick={() => setScriptOpen((v) => !v)}
+          aria-expanded={scriptOpen}
+        >
+          <span className="tag optional">선택</span>
+          발표 대본 추가 {scriptOpen ? "▲" : "▼"}
+        </button>
+        {scriptOpen && (
+          <div className="script-body">
+            <p className="field-hint">
+              없어도 분석할 수 있어요. 있으면 대본과 실제 발화를 비교한 피드백을 더 받을 수 있어요.
+            </p>
+            <textarea
+              value={script}
+              onChange={(e) => setScript(e.target.value)}
+              placeholder="발표 대본을 붙여넣어주세요"
+              rows={6}
+            />
+          </div>
+        )}
       </div>
 
       {submitError && <p className="error-text">{submitError}</p>}

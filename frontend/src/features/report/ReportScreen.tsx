@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import { StepHeader } from "../../components/StepHeader";
 import { usePollReport } from "./usePollReport";
@@ -58,12 +59,9 @@ export function ReportScreen() {
 
   return (
     <div className="app-content">
-      <StepHeader step={3} label="분석 결과" />
+      <StepHeader />
 
-      <div className="share-notice">
-        이 링크를 저장해두면 3일간 다시 볼 수 있어요.
-        <code>{window.location.href}</code>
-      </div>
+      <ShareNotice />
 
       <ConsistencySection consistency={report.consistency} />
 
@@ -98,6 +96,30 @@ export function ReportScreen() {
       <DeliverySection delivery={report.delivery} />
 
       {report.script_diff && <ScriptDiffSection scriptDiff={report.script_diff} />}
+    </div>
+  );
+}
+
+function ShareNotice() {
+  const [copied, setCopied] = useState(false);
+  const url = window.location.href;
+
+  async function handleCopy() {
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch {
+      // 클립보드 권한이 없는 환경 등 — 실패해도 URL은 이미 화면에 보여서 수동 복사 가능.
+    }
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), 2000);
+  }
+
+  return (
+    <div className="share-notice">
+      <button type="button" className="share-save-btn" onClick={handleCopy}>
+        {copied ? "복사됨 ✓" : "리포트 저장하기"}
+      </button>
+      <code className="share-url">{url}</code>
     </div>
   );
 }

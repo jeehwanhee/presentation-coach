@@ -1,37 +1,35 @@
 import { useCallback } from "react";
 
-// STEP 1 -> STEP 2 사이에서만 필요한 값들. sessionStorage라 새로고침엔 살아남고
-// 탭을 닫으면 사라짐 (result_token이 민감정보 성격이라 localStorage보다 적절).
-// STEP 3(리포트 화면)는 공유 링크로 새 탭에서 들어올 수 있어서 이 세션에 의존하지 않고
-// URL 쿼리(?token=)를 우선으로 씀 — 구현설계.md §2.3 참고.
+// STEP 1(제목)에서 STEP 2(대본+파일)로 넘어갈 때 필요한 값은 title 하나뿐 —
+// create()는 이제 STEP 2에서 파일 선택 후 "분석 시작하기" 시점에 한 번에 호출한다
+// (제목+대본+파일을 다 모은 뒤에 create→업로드→submit을 연달아 처리).
+// 그래서 sessionStorage엔 이 짧은 draft만 두면 됨. presentation_id/result_token은
+// STEP 3(리포트 화면) URL(/r/:id?token=)로 바로 넘어가니 별도 저장이 필요 없음.
 
-export interface PresentationSession {
-  presentationId: number;
-  resultToken: string;
-  slideUploadUrl: string;
-  audioUploadUrl: string;
+interface Draft {
+  title: string;
 }
 
-const STORAGE_KEY = "presentation-coach:session";
+const STORAGE_KEY = "presentation-coach:draft";
 
 export function usePresentationSession() {
-  const getSession = useCallback((): PresentationSession | null => {
+  const getDraft = useCallback((): Draft | null => {
     const raw = sessionStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
     try {
-      return JSON.parse(raw) as PresentationSession;
+      return JSON.parse(raw) as Draft;
     } catch {
       return null;
     }
   }, []);
 
-  const setSession = useCallback((session: PresentationSession) => {
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(session));
+  const setDraft = useCallback((draft: Draft) => {
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(draft));
   }, []);
 
-  const clearSession = useCallback(() => {
+  const clearDraft = useCallback(() => {
     sessionStorage.removeItem(STORAGE_KEY);
   }, []);
 
-  return { getSession, setSession, clearSession };
+  return { getDraft, setDraft, clearDraft };
 }

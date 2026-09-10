@@ -1,11 +1,12 @@
 import { useRef } from "react";
-import type { UploadStatus } from "./useFileUpload";
+
+export type SelectionStatus = "empty" | "selected" | "uploading" | "error";
 
 interface UploadCardProps {
   num: number;
   title: string;
   accept: string;
-  status: UploadStatus;
+  status: SelectionStatus;
   fileName: string | null;
   errorMessage: string | null;
   onSelect: (file: File) => void;
@@ -20,7 +21,7 @@ export function UploadCard({ num, title, accept, status, fileName, errorMessage,
   }
 
   return (
-    <div className={`upload-card status-${status}`}>
+    <div className={`upload-card status-${status === "selected" ? "done" : status}`}>
       <span className="num-badge">{num}</span>
       <p className="card-title">{title}</p>
 
@@ -32,7 +33,7 @@ export function UploadCard({ num, title, accept, status, fileName, errorMessage,
       >
         {status === "empty" && "클릭 또는 드래그해서 넣기"}
         {status === "uploading" && "업로드 중..."}
-        {status === "done" && "✓ 업로드 완료"}
+        {status === "selected" && "✓ 선택 완료"}
         {status === "error" && "다시 시도"}
       </button>
 

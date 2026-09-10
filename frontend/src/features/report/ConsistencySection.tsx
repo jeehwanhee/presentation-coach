@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { Consistency } from "../../types/report";
 
 const VERDICT_LABEL: Record<string, string> = {
@@ -6,7 +7,14 @@ const VERDICT_LABEL: Record<string, string> = {
   NO_BASIS: "근거없음",
 };
 
+const COLLAPSED_COUNT = 5;
+
 export function ConsistencySection({ consistency }: { consistency: Consistency }) {
+  const [expanded, setExpanded] = useState(false);
+
+  const hasMore = consistency.checks.length > COLLAPSED_COUNT;
+  const visibleChecks = expanded ? consistency.checks : consistency.checks.slice(0, COLLAPSED_COUNT);
+
   return (
     <section className="report-section">
       <h3>
@@ -16,7 +24,7 @@ export function ConsistencySection({ consistency }: { consistency: Consistency }
         </span>
       </h3>
       <ul className="consistency-list">
-        {consistency.checks.map((check, i) => (
+        {visibleChecks.map((check, i) => (
           <li key={i} className={`verdict-${check.verdict}`}>
             <div className="verdict-row">
               <span className="verdict-badge">{VERDICT_LABEL[check.verdict] ?? check.verdict}</span>
@@ -27,6 +35,11 @@ export function ConsistencySection({ consistency }: { consistency: Consistency }
           </li>
         ))}
       </ul>
+      {hasMore && (
+        <button type="button" className="show-more-btn" onClick={() => setExpanded((v) => !v)}>
+          {expanded ? "접기 ▲" : `${consistency.checks.length - COLLAPSED_COUNT}개 더보기 ▼`}
+        </button>
+      )}
     </section>
   );
 }

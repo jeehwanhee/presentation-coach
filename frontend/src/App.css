@@ -52,6 +52,54 @@
   font-size: 15px;
 }
 
+.feature-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+}
+
+.feature-item {
+  display: flex;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+}
+
+.feature-icon {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: var(--accent-bg);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.feature-icon svg {
+  width: 17px;
+  height: 17px;
+}
+
+.feature-title {
+  font-weight: 600;
+  font-size: 13.5px;
+  color: var(--text-h);
+  margin-bottom: 2px;
+}
+
+.feature-desc {
+  font-size: 12.5px;
+  color: var(--text);
+  line-height: 1.5;
+}
+
 /* STEP 1 폼 */
 .create-form {
   display: flex;
@@ -271,19 +319,42 @@
 }
 
 .share-notice {
-  font-size: 13px;
-  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
   background: var(--surface-2);
   border-radius: 10px;
-  padding: 12px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+  padding: 10px 14px;
 }
 
-.share-notice code {
-  word-break: break-all;
-  width: fit-content;
+.share-save-btn {
+  flex: none;
+  font-family: var(--heading);
+  font-weight: 700;
+  font-size: 13.5px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+}
+
+.share-url {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 12.5px;
+  color: var(--text);
+  background: none;
+  padding: 0;
+  overflow-x: auto;
+  white-space: nowrap;
+  scrollbar-width: none; /* Firefox */
+}
+
+.share-url::-webkit-scrollbar {
+  display: none; /* Chrome/Safari/Edge */
 }
 
 .report-section {
@@ -365,6 +436,18 @@
   color: var(--text-h);
 }
 
+.show-more-btn {
+  align-self: flex-start;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--accent);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 0;
+}
+
 .evidence {
   margin-top: 4px;
   font-size: 13px;
@@ -395,6 +478,27 @@
 .stat-label {
   font-size: 12px;
   color: var(--text);
+}
+
+.stat-rating {
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 600;
+  margin-left: 6px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  vertical-align: middle;
+}
+
+.stat-rating.tone-good {
+  background: rgba(31, 138, 76, 0.12);
+  color: var(--success);
+}
+
+.stat-rating.tone-low,
+.stat-rating.tone-high {
+  background: rgba(200, 65, 47, 0.12);
+  color: var(--danger);
 }
 
 .diff-kind {

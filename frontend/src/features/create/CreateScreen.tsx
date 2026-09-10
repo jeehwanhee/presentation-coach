@@ -1,45 +1,21 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { StepHeader } from "../../components/StepHeader";
-import { createPresentation } from "../../api/presentations";
 import { usePresentationSession } from "../../session/usePresentationSession";
-import { ApiError } from "../../api/client";
 
 export function CreateScreen() {
   const navigate = useNavigate();
-  const { setSession } = usePresentationSession();
+  const { setDraft } = usePresentationSession();
 
   const [title, setTitle] = useState("");
-  const [scriptOpen, setScriptOpen] = useState(false);
-  const [script, setScript] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  const canSubmit = title.trim().length > 0 && !loading;
+  const canSubmit = title.trim().length > 0;
 
-  async function handleSubmit(e: React.FormEvent) {
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!canSubmit) return;
-
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await createPresentation({
-        title: title.trim(),
-        script: script.trim() ? script.trim() : null,
-      });
-      setSession({
-        presentationId: res.presentation_id,
-        resultToken: res.result_token,
-        slideUploadUrl: res.slide_upload_url,
-        audioUploadUrl: res.audio_upload_url,
-      });
-      navigate("/upload");
-    } catch (err) {
-      setError(err instanceof ApiError ? err.message : "발표를 생성하지 못했어요. 다시 시도해주세요.");
-    } finally {
-      setLoading(false);
-    }
+    setDraft({ title: title.trim() });
+    navigate("/upload");
   }
 
   return (
@@ -48,8 +24,60 @@ export function CreateScreen() {
 
       <div className="app-heading">
         <h2>발표 리허설을 시작해볼까요?</h2>
-        <p>제목만 입력하면 바로 다음 단계로 넘어갈 수 있어요.</p>
+        <p>
+          슬라이드와 발표 음성을 올리면, 슬라이드 주장이 실제 발화에서 뒷받침됐는지부터 말하기
+          속도·침묵·채움말까지 리포트로 확인할 수 있어요.
+        </p>
       </div>
+
+      <ul className="feature-grid">
+        <li className="feature-item">
+          <span className="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20 6 9 17l-5-5" />
+            </svg>
+          </span>
+          <div>
+            <p className="feature-title">발표자료 정합 검사</p>
+            <p className="feature-desc">슬라이드 주장이 실제 발화에서 뒷받침됐는지 원문 인용과 함께 판정</p>
+          </div>
+        </li>
+        <li className="feature-item">
+          <span className="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="9" />
+              <path d="m14.5 9.5-2 5-5 2 2-5z" />
+            </svg>
+          </span>
+          <div>
+            <p className="feature-title">주제 이탈 · 논리 비약 감지</p>
+            <p className="feature-desc">슬라이드 범위를 벗어난 구간, 근거 없이 넘어간 구간을 짚어드려요</p>
+          </div>
+        </li>
+        <li className="feature-item">
+          <span className="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 20V10M12 20V4M20 20v-7" />
+            </svg>
+          </span>
+          <div>
+            <p className="feature-title">전달 지표</p>
+            <p className="feature-desc">말하기 속도(WPM), 침묵 구간, 채움말 빈도, 성량 변화까지</p>
+          </div>
+        </li>
+        <li className="feature-item">
+          <span className="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M6 4h9l3 3v13H6z" />
+              <path d="M9 12h6M9 16h6M9 8h3" />
+            </svg>
+          </span>
+          <div>
+            <p className="feature-title">대본 대조 (선택)</p>
+            <p className="feature-desc">대본을 넣으면 실제 발화와 얼마나 다른지도 비교해드려요</p>
+          </div>
+        </li>
+      </ul>
 
       <form className="create-form" onSubmit={handleSubmit}>
         <label className="field">
@@ -64,35 +92,8 @@ export function CreateScreen() {
           />
         </label>
 
-        <div className="script-field">
-          <button
-            type="button"
-            className="script-toggle"
-            onClick={() => setScriptOpen((v) => !v)}
-            aria-expanded={scriptOpen}
-          >
-            <span className="tag optional">선택</span>
-            발표 대본 추가 {scriptOpen ? "▲" : "▼"}
-          </button>
-          {scriptOpen && (
-            <div className="script-body">
-              <p className="field-hint">
-                없어도 분석할 수 있어요. 있으면 대본과 실제 발화를 비교한 피드백을 더 받을 수 있어요.
-              </p>
-              <textarea
-                value={script}
-                onChange={(e) => setScript(e.target.value)}
-                placeholder="발표 대본을 붙여넣어주세요"
-                rows={8}
-              />
-            </div>
-          )}
-        </div>
-
-        {error && <p className="error-text">{error}</p>}
-
         <button type="submit" className="cta-button" disabled={!canSubmit}>
-          {loading ? "생성 중..." : "다음"}
+          다음
         </button>
       </form>
     </div>
