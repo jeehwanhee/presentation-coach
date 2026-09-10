@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { StepHeader } from "../../components/StepHeader";
 import { usePresentationSession } from "../../session/usePresentationSession";
+import { ReportPreview } from "./ReportPreview";
 
 export function CreateScreen() {
   const navigate = useNavigate();
@@ -20,11 +20,10 @@ export function CreateScreen() {
 
   return (
     <div className="app-content">
-      <StepHeader step={1} label="발표 정보" />
-
-      <div className="app-heading">
-        <h2>발표 리허설을 시작해볼까요?</h2>
-        <p>
+      <div className="hero">
+        <h1 className="hero-brand">리허설 코치</h1>
+        <p className="hero-lead">발표 리허설을 시작해볼까요?</p>
+        <p className="hero-desc">
           슬라이드와 발표 음성을 올리면, 슬라이드 주장이 실제 발화에서 뒷받침됐는지부터 말하기
           속도·침묵·채움말까지 리포트로 확인할 수 있어요.
         </p>
@@ -43,7 +42,7 @@ export function CreateScreen() {
           </div>
         </li>
         <li className="feature-item">
-          <span className="feature-icon">
+          <span className="feature-icon c2">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="9" />
               <path d="m14.5 9.5-2 5-5 2 2-5z" />
@@ -55,7 +54,7 @@ export function CreateScreen() {
           </div>
         </li>
         <li className="feature-item">
-          <span className="feature-icon">
+          <span className="feature-icon c3">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M4 20V10M12 20V4M20 20v-7" />
             </svg>
@@ -66,7 +65,7 @@ export function CreateScreen() {
           </div>
         </li>
         <li className="feature-item">
-          <span className="feature-icon">
+          <span className="feature-icon c4">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M6 4h9l3 3v13H6z" />
               <path d="M9 12h6M9 16h6M9 8h3" />
@@ -96,6 +95,8 @@ export function CreateScreen() {
           다음
         </button>
       </form>
+
+      <ReportPreview />
     </div>
   );
 }

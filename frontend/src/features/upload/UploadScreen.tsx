@@ -83,32 +83,54 @@ export function UploadScreen() {
 
   return (
     <div className="app-content">
-      <StepHeader step={2} label="자료 업로드" />
+      <StepHeader />
 
       <div className="app-heading">
         <h2>발표 자료를 업로드해주세요</h2>
-        <p>PPT와 음성 파일은 필수예요.</p>
+        <p>
+          PPT와 음성 파일은 <span className="required-text">필수</span>예요.
+        </p>
       </div>
 
-      <div className="upload-grid">
-        <UploadCard
-          num={1}
-          title="발표 슬라이드 (PPT)"
-          accept=".ppt,.pptx"
-          status={submitting ? "uploading" : slideFile ? "selected" : "empty"}
-          fileName={slideFile?.name ?? null}
-          errorMessage={null}
-          onSelect={(file) => setSlideFile(file)}
-        />
-        <UploadCard
-          num={2}
-          title="발표 음성 녹음"
-          accept="audio/*"
-          status={submitting ? "uploading" : durationError ? "error" : audioFile ? "selected" : "empty"}
-          fileName={audioFile?.name ?? null}
-          errorMessage={durationError}
-          onSelect={handleAudioSelect}
-        />
+      <div className="upload-panel">
+        <div className="upload-grid">
+          <UploadCard
+            num={1}
+            title="발표 슬라이드 (PPT)"
+            hint={
+              <>
+                지원 형식: <span className="highlight-red">PPT, PPTX</span>
+              </>
+            }
+            required
+            accept=".ppt,.pptx"
+            status={submitting ? "uploading" : slideFile ? "selected" : "empty"}
+            fileName={slideFile?.name ?? null}
+            errorMessage={null}
+            onSelect={(file) => setSlideFile(file)}
+            onClear={() => setSlideFile(null)}
+          />
+          <UploadCard
+            num={2}
+            title="발표 음성 녹음"
+            hint={
+              <>
+                지원 형식: <span className="highlight-red">MP3, WAV, M4A, WEBM 등</span>
+              </>
+            }
+            required
+            accept="audio/*"
+            status={submitting ? "uploading" : durationError ? "error" : audioFile ? "selected" : "empty"}
+            fileName={audioFile?.name ?? null}
+            errorMessage={durationError}
+            onSelect={handleAudioSelect}
+            onClear={() => {
+              setAudioFile(null);
+              setAudioDurationMs(null);
+              setDurationError(null);
+            }}
+          />
+        </div>
       </div>
 
       <div className="script-field">
@@ -140,7 +162,7 @@ export function UploadScreen() {
 
       <div className="status-bar">
         <span className="progress-text">
-          필수 항목 <b>{completedCount}/2</b> 완료
+          <span className="required-text">필수</span> 항목 <b>{completedCount}/2</b> 완료
         </span>
         <button
           type="button"

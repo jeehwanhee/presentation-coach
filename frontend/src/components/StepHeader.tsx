@@ -1,19 +1,7 @@
-interface StepHeaderProps {
-  step?: 1 | 2 | 3;
-  label?: string;
-}
-
-const TOTAL_STEPS = 3;
-
-export function StepHeader({ step, label }: StepHeaderProps) {
+export function StepHeader() {
   return (
     <div className="step-header">
-      <div className="brand">리허설 코치</div>
-      {step && label && (
-        <div className="step-pill">
-          STEP <b>{step}</b> / {TOTAL_STEPS} · {label}
-        </div>
-      )}
+      <span className="brand">리허설 코치</span>
     </div>
   );
 }

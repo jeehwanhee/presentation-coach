@@ -6,11 +6,15 @@
   justify-content: center;
   padding: 40px 20px;
   box-sizing: border-box;
+  background:
+    radial-gradient(640px circle at 12% -8%, rgba(134, 59, 255, 0.14), transparent 60%),
+    radial-gradient(560px circle at 92% 6%, rgba(71, 191, 255, 0.16), transparent 60%),
+    var(--bg);
 }
 
 .app-content {
   width: 100%;
-  max-width: 640px;
+  max-width: 720px;
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -26,19 +30,13 @@
 .brand {
   font-family: var(--heading);
   font-weight: 800;
-  font-size: 17px;
-  letter-spacing: -0.2px;
-  color: var(--text-h);
-}
-
-.step-pill {
-  font-family: var(--mono);
-  font-size: 12.5px;
-  color: var(--text);
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  padding: 4px 12px;
+  font-size: 22px;
+  letter-spacing: -0.3px;
+  background: linear-gradient(120deg, var(--logo-purple), var(--logo-blue), var(--logo-purple));
+  background-size: 220% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .app-heading h2 {
@@ -50,6 +48,137 @@
 .app-heading p {
   color: var(--text);
   font-size: 15px;
+}
+
+/* 랜딩 히어로 (STEP 1 전용) — 메뉴/로고 대신 서비스 이름을 크게 중앙에 */
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 0 8px;
+  text-align: center;
+}
+
+.hero-brand {
+  font-family: var(--heading);
+  font-weight: 800;
+  font-size: clamp(34px, 6vw, 52px);
+  letter-spacing: -0.8px;
+  margin: 0;
+  background: linear-gradient(120deg, var(--logo-purple), var(--logo-blue), var(--logo-purple));
+  background-size: 220% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 6px 22px rgba(134, 59, 255, 0.3));
+  animation: hero-brand-shimmer 5s ease-in-out infinite;
+}
+
+@keyframes hero-brand-shimmer {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.hero-lead {
+  font-family: var(--heading);
+  font-weight: 700;
+  font-size: 19px;
+  color: var(--text-h);
+}
+
+.hero-desc {
+  max-width: 460px;
+  color: var(--text);
+  font-size: 15px;
+}
+
+/* STEP 1 히어로 아래 — 실제 리포트가 어떤 모습인지 보여주는 예시 카드 */
+.report-preview {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 38px 32px 32px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.report-preview-badge {
+  position: absolute;
+  top: -16px;
+  left: 24px;
+  background: linear-gradient(135deg, var(--logo-purple), var(--logo-blue));
+  color: #fff;
+  font-family: var(--heading);
+  font-size: 13.5px;
+  font-weight: 700;
+  padding: 6px 18px;
+  border-radius: 999px;
+  box-shadow: var(--shadow);
+}
+
+.report-preview .consistency-list li {
+  background: var(--surface-2);
+}
+
+/* 미리보기 안 통계/카드 요소를 실제 리포트 화면보다 한 단계 크게 */
+.report-preview .delivery-stats {
+  gap: 20px;
+}
+
+.report-preview .stat-value {
+  font-size: 34px;
+}
+
+.report-preview .stat-label {
+  font-size: 13.5px;
+}
+
+.report-preview .stat-rating {
+  font-size: 12px;
+  padding: 3px 9px;
+}
+
+.report-preview .consistency-list li {
+  padding: 18px 20px;
+  font-size: 15.5px;
+}
+
+.report-preview .slide-tag {
+  font-size: 13px;
+}
+
+.report-preview .verdict-badge {
+  font-size: 13px;
+}
+
+.report-preview-hint {
+  font-size: 14.5px;
+  color: var(--text);
+  text-align: center;
+}
+
+.report-preview-example {
+  animation: report-preview-fade-in 0.4s ease;
+}
+
+@keyframes report-preview-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .feature-grid {
@@ -66,8 +195,27 @@
   gap: 12px;
   padding: 14px;
   border: 1px solid var(--border);
+  border-top: 3px solid var(--accent);
   border-radius: 12px;
   background: var(--surface);
+  box-shadow: var(--shadow);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.feature-item:hover {
+  transform: translateY(-3px);
+}
+
+.feature-item:nth-child(2) {
+  border-top-color: var(--accent-2);
+}
+
+.feature-item:nth-child(3) {
+  border-top-color: var(--accent-3);
+}
+
+.feature-item:nth-child(4) {
+  border-top-color: var(--accent-4);
 }
 
 .feature-icon {
@@ -80,6 +228,22 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* 카드마다 다른 강조색 — 전부 같은 톤이라 심심해 보이지 않게 */
+.feature-icon.c2 {
+  background: color-mix(in srgb, var(--accent-2) 14%, transparent);
+  color: var(--accent-2);
+}
+
+.feature-icon.c3 {
+  background: color-mix(in srgb, var(--accent-3) 14%, transparent);
+  color: var(--accent-3);
+}
+
+.feature-icon.c4 {
+  background: color-mix(in srgb, var(--accent-4) 14%, transparent);
+  color: var(--accent-4);
 }
 
 .feature-icon svg {
@@ -105,6 +269,10 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+
+.create-form .cta-button {
+  align-self: center;
 }
 
 .field {
@@ -195,11 +363,17 @@
   padding: 12px 22px;
   border-radius: 10px;
   border: none;
-  background: var(--accent);
+  background: linear-gradient(135deg, var(--logo-purple), var(--logo-blue));
   color: #fff;
   cursor: pointer;
   align-self: flex-start;
-  box-shadow: var(--shadow);
+  box-shadow: 0 12px 24px -10px rgba(134, 59, 255, 0.5);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.cta-button:not(:disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 28px -10px rgba(134, 59, 255, 0.6);
 }
 
 .cta-button:disabled {
@@ -208,7 +382,15 @@
   box-shadow: none;
 }
 
-/* STEP 2 업로드 */
+/* STEP 2 업로드 — PPT/오디오 두 슬롯을 카드 하나로 묶음 */
+.upload-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: var(--shadow);
+}
+
 .upload-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -216,7 +398,7 @@
 }
 
 .upload-card {
-  background: var(--surface);
+  background: var(--surface-2);
   border: 2px solid var(--border);
   border-radius: 12px;
   padding: 16px;
@@ -253,6 +435,27 @@
   color: var(--text-h);
 }
 
+/* 필수로 올려야 하는 항목 강조 */
+.required-text {
+  font-weight: 700;
+  color: var(--logo-purple);
+}
+
+.card-required {
+  font-size: 12px;
+}
+
+/* 파일 종류/지원 형식 강조 — 로고색과는 별개로 눈에 띄는 빨간색 */
+.highlight-red {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+.card-hint {
+  font-size: 12px;
+  color: var(--text);
+}
+
 .card-dropzone {
   font: inherit;
   font-size: 13px;
@@ -269,9 +472,54 @@
 }
 
 .card-file {
+  display: inline-block;
+  max-width: 100%;
   font-size: 12px;
   color: var(--text);
   word-break: break-all;
+}
+
+/* 업로드한 파일 표시 줄 — 파일명 바로 위, 최대한 가깝게 삭제(X) 버튼이 겹쳐서 뜸 (구글 드라이브 느낌) */
+.card-file-row {
+  position: relative;
+  display: inline-flex;
+  align-self: flex-start;
+  max-width: 100%;
+}
+
+.card-file-remove {
+  position: absolute;
+  top: -3px;
+  right: -14px;
+  width: 15px;
+  height: 15px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  opacity: 0;
+  transform: scale(0.85);
+  transition: opacity 0.15s ease, transform 0.15s ease, color 0.15s ease;
+}
+
+.card-file-remove svg {
+  width: 11px;
+  height: 11px;
+}
+
+.card-file-row:hover .card-file-remove,
+.card-file-remove:focus-visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.card-file-remove:hover {
+  color: var(--danger);
 }
 
 .status-bar {

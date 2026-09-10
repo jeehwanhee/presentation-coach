@@ -36,7 +36,7 @@ export function ReportScreen() {
   if (!data || data.status === "PENDING" || data.status === "PROCESSING") {
     return (
       <div className="app-content">
-        <StepHeader step={3} label="분석 중" />
+        <StepHeader />
         <div className="processing-state">
           <div className="spinner" />
           <p>발표를 분석하고 있어요. 잠시만 기다려주세요...</p>
