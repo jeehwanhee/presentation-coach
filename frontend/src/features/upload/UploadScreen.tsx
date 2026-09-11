@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { StepHeader } from "../../components/StepHeader";
 import { UploadCard } from "./UploadCard";
+import { AudioUploadCard } from "./AudioUploadCard";
 import { readAudioDurationMs } from "./useFileUpload";
 import { createPresentation, submitPresentation, uploadToPresignedUrl } from "../../api/presentations";
 import { usePresentationSession } from "../../session/usePresentationSession";
@@ -9,12 +10,29 @@ import { ApiError } from "../../api/client";
 
 const AUDIO_DURATION_LIMIT_MS = 600_000; // 10분, docs/API_명세서.md §2.2
 
+function SlidesIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="4" width="18" height="13" rx="2" />
+      <path d="M8 21h8M12 17v4" />
+    </svg>
+  );
+}
+
+function MicIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="9" y="2" width="6" height="12" rx="3" />
+      <path d="M5 10a7 7 0 0 0 14 0M12 19v3" />
+    </svg>
+  );
+}
+
 export function UploadScreen() {
   const navigate = useNavigate();
   const { getDraft, clearDraft } = usePresentationSession();
 
   const [title, setTitle] = useState<string | null>(null);
-  const [scriptOpen, setScriptOpen] = useState(false);
   const [script, setScript] = useState("");
 
   const [slideFile, setSlideFile] = useState<File | null>(null);
@@ -95,7 +113,7 @@ export function UploadScreen() {
       <div className="upload-panel">
         <div className="upload-grid">
           <UploadCard
-            num={1}
+            icon={<SlidesIcon />}
             title="발표 슬라이드 (PPT)"
             hint={
               <>
@@ -106,22 +124,23 @@ export function UploadScreen() {
             accept=".ppt,.pptx"
             status={submitting ? "uploading" : slideFile ? "selected" : "empty"}
             fileName={slideFile?.name ?? null}
+            fileSize={slideFile?.size ?? null}
             errorMessage={null}
             onSelect={(file) => setSlideFile(file)}
             onClear={() => setSlideFile(null)}
           />
-          <UploadCard
-            num={2}
+          <AudioUploadCard
+            icon={<MicIcon />}
             title="발표 음성 녹음"
             hint={
               <>
-                지원 형식: <span className="highlight-red">MP3, WAV, M4A, WEBM 등</span>
+                파일 업로드(<span className="highlight-red">MP3, WAV, M4A, WEBM 등</span>) 또는 마이크로 직접 녹음
               </>
             }
             required
-            accept="audio/*"
             status={submitting ? "uploading" : durationError ? "error" : audioFile ? "selected" : "empty"}
             fileName={audioFile?.name ?? null}
+            fileSize={audioFile?.size ?? null}
             errorMessage={durationError}
             onSelect={handleAudioSelect}
             onClear={() => {
@@ -134,31 +153,26 @@ export function UploadScreen() {
       </div>
 
       <div className="script-field">
-        <button
-          type="button"
-          className="script-toggle"
-          onClick={() => setScriptOpen((v) => !v)}
-          aria-expanded={scriptOpen}
-        >
+        <div className="script-field-head">
           <span className="tag optional">선택</span>
-          발표 대본 추가 {scriptOpen ? "▲" : "▼"}
-        </button>
-        {scriptOpen && (
-          <div className="script-body">
-            <p className="field-hint">
-              없어도 분석할 수 있어요. 있으면 대본과 실제 발화를 비교한 피드백을 더 받을 수 있어요.
-            </p>
-            <textarea
-              value={script}
-              onChange={(e) => setScript(e.target.value)}
-              placeholder="발표 대본을 붙여넣어주세요"
-              rows={6}
-            />
-          </div>
-        )}
+          <span className="card-title">발표 대본 추가</span>
+        </div>
+        <p className="field-hint">
+          없어도 분석할 수 있어요. 있으면 대본과 실제 발화를 비교한 피드백을 더 받을 수 있어요.
+        </p>
+        <textarea
+          value={script}
+          onChange={(e) => setScript(e.target.value)}
+          placeholder="발표 대본을 붙여넣어주세요"
+          rows={5}
+        />
       </div>
 
       {submitError && <p className="error-text">{submitError}</p>}
+
+      <div className="upload-progress">
+        <div className="upload-progress-bar" style={{ width: `${(completedCount / 2) * 100}%` }} />
+      </div>
 
       <div className="status-bar">
         <span className="progress-text">

@@ -5,6 +5,7 @@ import { usePollReport } from "./usePollReport";
 import { ConsistencySection } from "./ConsistencySection";
 import { DeliverySection } from "./DeliverySection";
 import { ScriptDiffSection } from "./ScriptDiffSection";
+import { SummarySection } from "./SummarySection";
 import { ApiError } from "../../api/client";
 
 const ERROR_MESSAGE: Record<string, string> = {
@@ -63,11 +64,14 @@ export function ReportScreen() {
 
       <ShareNotice />
 
+      <SummarySection report={report} audioDurationMs={data.audio_duration_ms} />
+
       <ConsistencySection consistency={report.consistency} />
 
       {report.off_topic.length > 0 && (
         <section className="report-section">
           <h3>주제 이탈</h3>
+          <p className="field-hint">슬라이드 주제와 무관한 이야기를 한 구간</p>
           <ul className="simple-list">
             {report.off_topic.map((seg, i) => (
               <li key={i}>
