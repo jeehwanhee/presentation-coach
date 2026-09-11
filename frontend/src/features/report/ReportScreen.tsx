@@ -93,7 +93,7 @@ export function ReportScreen() {
         </section>
       )}
 
-      <DeliverySection delivery={report.delivery} />
+      <DeliverySection delivery={report.delivery} audioDurationMs={data.audio_duration_ms} />
 
       {report.script_diff && <ScriptDiffSection scriptDiff={report.script_diff} />}
     </div>

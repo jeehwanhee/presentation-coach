@@ -743,8 +743,12 @@
   color: var(--success);
 }
 
-.stat-rating.tone-low,
-.stat-rating.tone-high {
+.stat-rating.tone-mid {
+  background: rgba(194, 118, 10, 0.14);
+  color: var(--accent-3, #c2760a);
+}
+
+.stat-rating.tone-bad {
   background: rgba(200, 65, 47, 0.12);
   color: var(--danger);
 }

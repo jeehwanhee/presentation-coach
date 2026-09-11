@@ -54,9 +54,11 @@ export interface SubmitPresentationResponse {
 }
 
 // §2.3 — report/error는 상태에 따라 널일 수 있음(필드 자체는 항상 존재)
+// audio_duration_ms는 submit 전(PENDING)엔 null, 그 이후로는 값이 채워짐.
 export interface GetPresentationResponse {
   presentation_id: number;
   status: PresentationStatus;
+  audio_duration_ms: number | null;
   report: AnalysisReport | null;
   error: ErrorBody | null;
 }

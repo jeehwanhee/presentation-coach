@@ -84,16 +84,17 @@
 `GET /api/presentations/{presentation_id}` — 헤더 `X-Result-Token` 필수.
 ```json
 // 200 분석 중
-{ "presentation_id": 456, "status": "PROCESSING", "report": null }
+{ "presentation_id": 456, "status": "PROCESSING", "audio_duration_ms": 210000, "report": null }
 // 200 완료
-{ "presentation_id": 456, "status": "DONE", "report": { /* 2.3.1절 */ } }
+{ "presentation_id": 456, "status": "DONE", "audio_duration_ms": 210000, "report": { /* 2.3.1절 */ } }
 // 200 실패
-{ "presentation_id": 456, "status": "FAILED", "error": { "code": "STT_FAILED", "message": "..." } }
+{ "presentation_id": 456, "status": "FAILED", "audio_duration_ms": 210000, "error": { "code": "STT_FAILED", "message": "..." } }
 // 403 토큰 불일치 / 410 만료
 { "error": { "code": "PRESENTATION_EXPIRED", "message": "리포트가 만료되었습니다." } }
 ```
 - `now > expires_at` → **410**. 토큰 불일치 → **403**.
 - **CloudFront에서 이 경로 캐싱 비활성화 필수.** 폴링 주기 2~3초.
+- `audio_duration_ms`는 submit 요청에서 받은 값을 그대로 돌려준다. submit 전(`PENDING`)이면 `null`. 프론트가 전달 지표(§2.3.1 `delivery`)를 "분당" 비율로 정규화해서 보여줄 때 씀.
 
 ### 2.3.1 리포트 스키마 (제품 핵심)
 
