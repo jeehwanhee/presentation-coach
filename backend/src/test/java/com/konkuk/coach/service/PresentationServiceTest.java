@@ -134,6 +134,22 @@ class PresentationServiceTest {
     }
 
     @Test
+    @DisplayName("submit: 이미 제출된(PENDING 아닌) 발표면 예외")
+    void submitAlreadySubmittedThrowsException() {
+        Presentation presentation = new Presentation();
+        presentation.setId(1L);
+        presentation.setResultToken("token123");
+        presentation.setStatus(PresentationStatus.PROCESSING);
+        when(presentationRepository.findById(1L)).thenReturn(Optional.of(presentation));
+
+        BusinessException e = assertThrows(BusinessException.class,
+                () -> presentationService.submit(1L, "token123", new PresentationSubmitRequest(30_000)));
+
+        assertThat(e.getErrorCode()).isEqualTo(PresentationErrorCode.ALREADY_SUBMITTED);
+        verify(sqsClient, never()).sendMessage(any(SendMessageRequest.class));
+    }
+
+    @Test
     @DisplayName("submit: 오디오 길이가 10분 초과면 예외")
     void submitAudioDurationExceededThrowsException() {
         Presentation presentation = new Presentation();

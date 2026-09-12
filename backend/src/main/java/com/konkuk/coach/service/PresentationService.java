@@ -85,6 +85,10 @@ public class PresentationService {
             throw new BusinessException(PresentationErrorCode.PRESENTATION_NOT_FOUND);
         }
 
+        if (presentation.getStatus() != PresentationStatus.PENDING) {
+            throw new BusinessException(PresentationErrorCode.ALREADY_SUBMITTED);
+        }
+
         if (request.audioDurationMs() > AUDIO_LIMIT_MS) {
             throw new BusinessException(PresentationErrorCode.AUDIO_DURATION_EXCEEDED,
                     "오디오 길이(" + request.audioDurationMs() + "ms)가 10분 제한을 초과했습니다.");

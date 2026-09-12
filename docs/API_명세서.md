@@ -25,7 +25,8 @@
   - `X-Result-Token: <token>` — 결과 조회의 **유일한 열쇠**(소지 = 조회 권한).
   - `X-Worker-Secret: <secret>` — Python → Spring 내부 콜백 전용, 외부 비노출. 그냥 우리끼리 정하는 문자열
 - **에러 포맷**: `{ "error": { "code": "PRESENTATION_EXPIRED", "message": "..." } }`
-- **상태 코드**: 200 · 201 생성 · 202 접수 · 400 · 403 토큰 불일치 · 404 · **410 만료** · 500
+- **상태 코드**: 200 · 201 생성 · 202 접수 · 400 · 403 토큰 불일치 · 404 · **410 만료** · **429 rate limit** · 500
+- **Rate limit**: 인증이 없어 API를 직접 두드리는 어뷰징(=AI 호출 비용 증가)을 막기 위해 `POST /api/presentations`(create)와 `POST /api/presentations/{id}/submit` 둘 다 **IP당 하루 10회**로 제한. 초과 시 `429`+ `{ "error": { "code": "RATE_LIMIT_EXCEEDED", "message": "..." } }`. 인스턴스 1대 기준 인메모리(Bucket4j) 구현이라 서버 재시작 시 초기화되고, 인스턴스를 여러 대로 늘리면 공유 저장소로 교체 필요.
 
 ### 접근 제어
 - `result_token` **소지 = 조회 권한.** 로그인이 없어 "작성자"와 "링크를 건네받은 제3자"를 구분 못 함 — URL 가진 사람은 누구나 조회.
@@ -77,6 +78,7 @@
 { "presentation_id": 456, "status": "PROCESSING" }
 ```
 - 토큰 불일치 → **403**.
+- **`status`가 `PENDING`이 아니면(이미 submit됨) → 409** `{ "error": { "code": "ALREADY_SUBMITTED", "message": "..." } }`. 같은 id로 submit을 반복 호출해 SQS job을 중복 발행(=AI 비용 중복 발생)하는 것을 막기 위함 — 한 presentation당 submit은 정확히 한 번만 성공한다.
 - 검증: `audio_duration_ms` ≤ **600000(10분 하드리밋)**, 초과 시 400.
 - 서버가 SQS에 잡 메시지 push(§3.1). **push 성공 시점에 `status`를 `PROCESSING`으로 전환**해 응답한다 — 워커가 별도로 "시작했다"를 알리는 콜백은 없음. `PENDING`은 생성 후 아직 submit 안 된 상태만을 의미.
 

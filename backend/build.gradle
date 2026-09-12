@@ -43,6 +43,7 @@ dependencies {
 
 	implementation 'software.amazon.awssdk:s3'
 	implementation 'software.amazon.awssdk:sqs'
+	implementation 'com.bucket4j:bucket4j_jdk17-core:8.19.0'
 }
 
 tasks.named('test') {

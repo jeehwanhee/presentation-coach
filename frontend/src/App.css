@@ -308,6 +308,13 @@
   color: var(--text);
 }
 
+.usage-limit-notice {
+  text-align: center;
+  font-size: 12px;
+  color: var(--text);
+  opacity: 0.7;
+}
+
 .script-field {
   border: 1px dashed var(--border);
   border-radius: 10px;
