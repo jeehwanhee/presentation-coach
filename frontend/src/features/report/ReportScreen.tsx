@@ -38,6 +38,11 @@ export function ReportScreen() {
     return (
       <div className="app-content">
         <StepHeader />
+        {data && (
+          <div className="app-heading">
+            <h2>{data.title}</h2>
+          </div>
+        )}
         <div className="processing-state">
           <div className="spinner" />
           <p>발표를 분석하고 있어요. 잠시만 기다려주세요...</p>
@@ -61,6 +66,10 @@ export function ReportScreen() {
   return (
     <div className="app-content">
       <StepHeader />
+
+      <div className="app-heading">
+        <h2>{data.title}</h2>
+      </div>
 
       <ShareNotice />
 

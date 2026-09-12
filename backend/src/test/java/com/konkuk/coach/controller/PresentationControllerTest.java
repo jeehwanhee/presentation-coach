@@ -134,7 +134,7 @@ class PresentationControllerTest {
     @DisplayName("GET /api/presentations/{id}: DONE이면 200과 report를 반환한다")
     void reportReturnsReportForDone() throws Exception {
         when(presentationService.report(eq(1L), eq("token123")))
-                .thenReturn(PresentationReportResponse.done(1L, 30_000, "{\"score\":90}"));
+                .thenReturn(PresentationReportResponse.done(1L, "테스트 발표", 30_000, "{\"score\":90}"));
 
         mockMvc.perform(get("/api/presentations/1")
                         .header("X-Result-Token", "token123"))
@@ -147,7 +147,7 @@ class PresentationControllerTest {
     @DisplayName("GET /api/presentations/{id}: PROCESSING이면 report가 null이다")
     void reportReturnsNullReportForProcessing() throws Exception {
         when(presentationService.report(eq(1L), eq("token123")))
-                .thenReturn(PresentationReportResponse.processing(1L, null));
+                .thenReturn(PresentationReportResponse.processing(1L, "테스트 발표", null));
 
         mockMvc.perform(get("/api/presentations/1")
                         .header("X-Result-Token", "token123"))

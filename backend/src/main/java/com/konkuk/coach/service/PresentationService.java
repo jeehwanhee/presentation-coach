@@ -147,9 +147,9 @@ public class PresentationService {
         }
 
         return switch (presentation.getStatus()) {
-            case DONE -> PresentationReportResponse.done(presentation.getId(), presentation.getAudioDurationMs(), presentation.getReportJson());
-            case FAILED -> PresentationReportResponse.failed(presentation.getId(), presentation.getAudioDurationMs(), presentation.getErrorCode(), presentation.getErrorMessage());
-            case PENDING, PROCESSING -> PresentationReportResponse.processing(presentation.getId(), presentation.getAudioDurationMs());
+            case DONE -> PresentationReportResponse.done(presentation.getId(), presentation.getTitle(), presentation.getAudioDurationMs(), presentation.getReportJson());
+            case FAILED -> PresentationReportResponse.failed(presentation.getId(), presentation.getTitle(), presentation.getAudioDurationMs(), presentation.getErrorCode(), presentation.getErrorMessage());
+            case PENDING, PROCESSING -> PresentationReportResponse.processing(presentation.getId(), presentation.getTitle(), presentation.getAudioDurationMs());
         };
     }
 

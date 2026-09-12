@@ -57,6 +57,7 @@ export interface SubmitPresentationResponse {
 // audio_duration_ms는 submit 전(PENDING)엔 null, 그 이후로는 값이 채워짐.
 export interface GetPresentationResponse {
   presentation_id: number;
+  title: string;
   status: PresentationStatus;
   audio_duration_ms: number | null;
   report: AnalysisReport | null;
