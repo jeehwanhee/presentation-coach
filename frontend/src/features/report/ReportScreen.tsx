@@ -81,11 +81,11 @@ export function ReportScreen() {
         <section className="report-section">
           <h3>주제 이탈</h3>
           <p className="field-hint">슬라이드 주제와 무관한 이야기를 한 구간</p>
-          <ul className="simple-list">
+          <ul className="off-topic-list">
             {report.off_topic.map((seg, i) => (
               <li key={i}>
-                <p>{seg.text}</p>
-                <span className="field-hint">{seg.reason}</span>
+                <p className="off-topic-text">{seg.text}</p>
+                <p className="off-topic-reason">{seg.reason}</p>
               </li>
             ))}
           </ul>
