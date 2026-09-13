@@ -96,6 +96,10 @@ class ConsistencyAnalysisResult:
     logic_gaps: list[LogicGap]
     script_diff: ScriptDiff | None
     group_b_fillers: list[Filler]
+    # 모델별 비용 비교용(2026-09-12 추가) — 게이트웨이가 OpenAI 호환 usage 필드를
+    # 주면 그대로 담는다. 응답에 usage가 없으면 None(운영 로직은 이 필드를 안 봄,
+    # scripts/test_model_comparison.py에서 모델 간 토큰 소모량 비교에만 사용).
+    token_usage: dict | None = None
 
 
 @dataclass
@@ -328,6 +332,16 @@ def _to_result(
     if has_script and parsed.script_diff is not None:
         deviations: list[ScriptDeviation] = []
         for d in parsed.script_diff.deviations:
+            # 2026-09-12 실측(presentation_id=18)에서 확인: LLM이 script_text와
+            # spoken_text가 완전히 동일한데도 "변경"으로 오판정하는 할루시네이션
+            # 사례 발견(원본 JSON 바이트 비교로 확인, 공백/자모분리 등 숨은 차이
+            # 없음). 실제 차이가 없는 no-op deviation은 어느 모델을 쓰든 다시
+            # 나올 수 있어서, 프롬프트만 믿지 않고 여기서도 방어적으로 걸러낸다.
+            if d.script_text.strip() == d.spoken_text.strip():
+                logger.warning(
+                    "script_diff: script_text==spoken_text인 no-op deviation 버림: %r", d
+                )
+                continue
             resolved = _resolve_segment_ms(segments, d.segment_index)
             if resolved is None:
                 logger.warning("script_diff 세그먼트 인덱스 범위 밖이라 버림: %r", d)
@@ -420,4 +434,13 @@ def analyze_consistency(
     except Exception as exc:
         raise LlmError(f"LLM 응답 파싱 실패: {exc}") from exc
 
-    return _to_result(parsed, transcript.segments, candidates, has_script=script is not None)
+    result = _to_result(parsed, transcript.segments, candidates, has_script=script is not None)
+
+    usage = getattr(response, "usage", None)
+    if usage is not None:
+        result.token_usage = {
+            "prompt_tokens": getattr(usage, "prompt_tokens", None),
+            "completion_tokens": getattr(usage, "completion_tokens", None),
+            "total_tokens": getattr(usage, "total_tokens", None),
+        }
+    return result

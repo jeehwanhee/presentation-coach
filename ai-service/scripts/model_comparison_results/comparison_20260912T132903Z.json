@@ -1,0 +1,1997 @@
+[
+  {
+    "pair": "test02_집중력_포모도로",
+    "model": "gemini-3.7-flash",
+    "elapsed_seconds": 6.0,
+    "token_usage": {
+      "prompt_tokens": 2137,
+      "completion_tokens": 543,
+      "total_tokens": 3390
+    },
+    "report": {
+      "consistency": {
+        "checks": [
+          {
+            "slide_index": 0,
+            "claim": "일상 속 집중력 유지하기 및 포모도로 기법 체험기 소개",
+            "verdict": "SUPPORTED",
+            "evidence_span": "오늘 제가 준비한 이야기는 일상에서 집중력을 어떻게 유지하면 좋을지에 대한 내용입니다.",
+            "evidence_at_ms": 0
+          },
+          {
+            "slide_index": 1,
+            "claim": "작업을 시작하려 할 때 딴짓을 하거나 스마트폰을 보게 되는 문제 상황",
+            "verdict": "SUPPORTED",
+            "evidence_span": "막상 책상 앞에 앉아서 과제나 작업을 시작하려고 하면 그 이상하게 주변 정리가 갑자기 하고 싶어진다거나 스마트폰을 자꾸 만지작거리게 되잖아요.",
+            "evidence_at_ms": 14000
+          },
+          {
+            "slide_index": 2,
+            "claim": "포모도로 기법(25분 집중 + 5분 휴식)을 1주일간 직접 시도",
+            "verdict": "SUPPORTED",
+            "evidence_span": "그중에서 가장 간단해 보이는 포모도로 기법을 한 일주일 정도 직접 시도해 봤습니다.",
+            "evidence_at_ms": 41900
+          },
+          {
+            "slide_index": 3,
+            "claim": "반신반의로 시작했으나 25분 집중 및 5분 휴식을 통해 집중력 향상 체감",
+            "verdict": "SUPPORTED",
+            "evidence_span": "솔직히 처음에는 겨우 25분을 나눠서 한다고 집중력이 확 좋아질까 하고 반신반의했었거든요. 그러니까 그런데 막상 타이머를 켜두고 시작하니까 생각보다 효과가 괜찮습니다.",
+            "evidence_at_ms": 54800
+          },
+          {
+            "slide_index": 4,
+            "claim": "집중은 의지력이 아닌 환경을 작게 쪼개는 요령이며 타이머 25분 시작을 제안",
+            "verdict": "SUPPORTED",
+            "evidence_span": "결국 집중이라는 게 엄청난 의지력이 필요하다기보다는 그냥 내가 딴 짓 하지 못하도록 환경을 작게 쪼개두는 요령의 문제인 것 같습니다.",
+            "evidence_at_ms": 93800
+          }
+        ],
+        "supported_count": 5,
+        "total_claims": 5
+      },
+      "off_topic": [],
+      "logic_gaps": [],
+      "delivery": {
+        "wpm": 97.8,
+        "silence_total_ms": 18140,
+        "long_pauses": [
+          {
+            "start_ms": 0,
+            "duration_ms": 1410
+          },
+          {
+            "start_ms": 77900,
+            "duration_ms": 1250
+          },
+          {
+            "start_ms": 103180,
+            "duration_ms": 2090
+          }
+        ],
+        "fillers": [
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 1940,
+            "duration_ms": 550
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 2740,
+            "duration_ms": 270
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 3880,
+            "duration_ms": 770
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 5760,
+            "duration_ms": 2110
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 9460,
+            "duration_ms": 710
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 10680,
+            "duration_ms": 410
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 13760,
+            "duration_ms": 1170
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 15260,
+            "duration_ms": 310
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 18540,
+            "duration_ms": 510
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 19920,
+            "duration_ms": 350
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 22020,
+            "duration_ms": 710
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 22880,
+            "duration_ms": 870
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 24200,
+            "duration_ms": 250
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 29680,
+            "duration_ms": 730
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 31140,
+            "duration_ms": 390
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 32080,
+            "duration_ms": 450
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 32820,
+            "duration_ms": 590
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 33980,
+            "duration_ms": 390
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 36360,
+            "duration_ms": 870
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 38580,
+            "duration_ms": 490
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 40300,
+            "duration_ms": 810
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 41660,
+            "duration_ms": 530
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 47120,
+            "duration_ms": 1990
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 49540,
+            "duration_ms": 250
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 50880,
+            "duration_ms": 390
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 56100,
+            "duration_ms": 530
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 57320,
+            "duration_ms": 430
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 59280,
+            "duration_ms": 410
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 61440,
+            "duration_ms": 1070
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 63600,
+            "duration_ms": 530
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 65820,
+            "duration_ms": 590
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 67560,
+            "duration_ms": 330
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 69240,
+            "duration_ms": 1890
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 71540,
+            "duration_ms": 1050
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 72980,
+            "duration_ms": 430
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 75160,
+            "duration_ms": 1330
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 82580,
+            "duration_ms": 590
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 85240,
+            "duration_ms": 350
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 86740,
+            "duration_ms": 870
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 90780,
+            "duration_ms": 270
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 91740,
+            "duration_ms": 250
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 94600,
+            "duration_ms": 330
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 95660,
+            "duration_ms": 470
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 98000,
+            "duration_ms": 550
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 99160,
+            "duration_ms": 250
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 101640,
+            "duration_ms": 270
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 107360,
+            "duration_ms": 450
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 109400,
+            "duration_ms": 750
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 110420,
+            "duration_ms": 290
+          },
+          {
+            "type": "그",
+            "text": "그",
+            "at_ms": 22730,
+            "duration_ms": 150
+          }
+        ],
+        "filler_count": 50,
+        "volume_variation": {
+          "relative_std": 0.763,
+          "note": "200ms 프레임 RMS 기준 변동계수 0.76 (값이 클수록 성량 기복이 큼 · 절대 기준값은 실데이터로 보정 필요)"
+        }
+      },
+      "script_diff": null
+    }
+  },
+  {
+    "pair": "test02_집중력_포모도로",
+    "model": "gemini-3.8-flash",
+    "elapsed_seconds": 14.0,
+    "token_usage": {
+      "prompt_tokens": 2137,
+      "completion_tokens": 542,
+      "total_tokens": 6350
+    },
+    "report": {
+      "consistency": {
+        "checks": [
+          {
+            "slide_index": 0,
+            "claim": "일상에서 집중력을 유지하고 몰입하는 방법에 대한 발표",
+            "verdict": "SUPPORTED",
+            "evidence_span": "오늘 제가 준비한 이야기는 일상에서 집중력을 어떻게 유지하면 좋을지에 대한 내용입니다.",
+            "evidence_at_ms": 0
+          },
+          {
+            "slide_index": 1,
+            "claim": "작업을 시작할 때 주변 정리나 스마트폰 알림 등으로 딴짓을 하게 되는 문제",
+            "verdict": "SUPPORTED",
+            "evidence_span": "막상 책상 앞에 앉아서 과제나 작업을 시작하려고 하면 그 이상하게 주변 정리가 갑자기 하고 싶어진다거나",
+            "evidence_at_ms": 14000
+          },
+          {
+            "slide_index": 2,
+            "claim": "25분 집중과 5분 휴식을 반복하는 포모도로 기법을 1주일간 시도함",
+            "verdict": "SUPPORTED",
+            "evidence_span": "그중에서 가장 간단해 보이는 포모도로 기법을 한 일주일 정도 직접 시도해 봤습니다.",
+            "evidence_at_ms": 41900
+          },
+          {
+            "slide_index": 3,
+            "claim": "25분 타이머 덕분에 스마트폰 확인 충동을 참고 5분 휴식으로 머리가 맑아짐",
+            "verdict": "SUPPORTED",
+            "evidence_span": "어차피 25분만 버티면 쉴 수 있다라는 생각이 드니까 중간에 폰을 확인하고 싶은 충동을 좀 참게 되더라고요. 그리고 5분 동안 스트레칭을 하거나 물을 마시고 오면 머리도 한결 맑아지는 느낌이 있었습니다.",
+            "evidence_at_ms": 69700
+          },
+          {
+            "slide_index": 4,
+            "claim": "집중은 의지력이 아니라 환경을 쪼개는 요령이므로 25분 타이머로 시작해보기를 제안",
+            "verdict": "SUPPORTED",
+            "evidence_span": "집중이라는 게 엄청난 의지력이 필요하다기보다는 그냥 내가 딴 짓 하지 못하도록 환경을 작게 쪼개두는 요령의 문제인 것 같습니다.",
+            "evidence_at_ms": 93800
+          }
+        ],
+        "supported_count": 5,
+        "total_claims": 5
+      },
+      "off_topic": [],
+      "logic_gaps": [],
+      "delivery": {
+        "wpm": 97.8,
+        "silence_total_ms": 18140,
+        "long_pauses": [
+          {
+            "start_ms": 0,
+            "duration_ms": 1410
+          },
+          {
+            "start_ms": 77900,
+            "duration_ms": 1250
+          },
+          {
+            "start_ms": 103180,
+            "duration_ms": 2090
+          }
+        ],
+        "fillers": [
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 1940,
+            "duration_ms": 550
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 2740,
+            "duration_ms": 270
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 3880,
+            "duration_ms": 770
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 5760,
+            "duration_ms": 2110
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 9460,
+            "duration_ms": 710
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 10680,
+            "duration_ms": 410
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 13760,
+            "duration_ms": 1170
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 15260,
+            "duration_ms": 310
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 18540,
+            "duration_ms": 510
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 19920,
+            "duration_ms": 350
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 22020,
+            "duration_ms": 710
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 22880,
+            "duration_ms": 870
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 24200,
+            "duration_ms": 250
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 29680,
+            "duration_ms": 730
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 31140,
+            "duration_ms": 390
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 32080,
+            "duration_ms": 450
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 32820,
+            "duration_ms": 590
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 33980,
+            "duration_ms": 390
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 36360,
+            "duration_ms": 870
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 38580,
+            "duration_ms": 490
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 40300,
+            "duration_ms": 810
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 41660,
+            "duration_ms": 530
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 47120,
+            "duration_ms": 1990
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 49540,
+            "duration_ms": 250
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 50880,
+            "duration_ms": 390
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 56100,
+            "duration_ms": 530
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 57320,
+            "duration_ms": 430
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 59280,
+            "duration_ms": 410
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 61440,
+            "duration_ms": 1070
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 63600,
+            "duration_ms": 530
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 65820,
+            "duration_ms": 590
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 67560,
+            "duration_ms": 330
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 69240,
+            "duration_ms": 1890
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 71540,
+            "duration_ms": 1050
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 72980,
+            "duration_ms": 430
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 75160,
+            "duration_ms": 1330
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 82580,
+            "duration_ms": 590
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 85240,
+            "duration_ms": 350
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 86740,
+            "duration_ms": 870
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 90780,
+            "duration_ms": 270
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 91740,
+            "duration_ms": 250
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 94600,
+            "duration_ms": 330
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 95660,
+            "duration_ms": 470
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 98000,
+            "duration_ms": 550
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 99160,
+            "duration_ms": 250
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 101640,
+            "duration_ms": 270
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 107360,
+            "duration_ms": 450
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 109400,
+            "duration_ms": 750
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 110420,
+            "duration_ms": 290
+          },
+          {
+            "type": "그",
+            "text": "그",
+            "at_ms": 22730,
+            "duration_ms": 150
+          },
+          {
+            "type": "뭔가",
+            "text": "뭔가",
+            "at_ms": 105950,
+            "duration_ms": 230
+          }
+        ],
+        "filler_count": 51,
+        "volume_variation": {
+          "relative_std": 0.763,
+          "note": "200ms 프레임 RMS 기준 변동계수 0.76 (값이 클수록 성량 기복이 큼 · 절대 기준값은 실데이터로 보정 필요)"
+        }
+      },
+      "script_diff": null
+    }
+  },
+  {
+    "pair": "test02_집중력_포모도로",
+    "model": "gemini-3.6-flash",
+    "elapsed_seconds": 14.0,
+    "token_usage": {
+      "prompt_tokens": 2137,
+      "completion_tokens": 515,
+      "total_tokens": 4973
+    },
+    "report": {
+      "consistency": {
+        "checks": [
+          {
+            "slide_index": 0,
+            "claim": "일상 속 집중력을 유지하는 방법에 대한 발표",
+            "verdict": "SUPPORTED",
+            "evidence_span": "오늘 제가 준비한 이야기는 일상에서 집중력을 어떻게 유지하면 좋을지에 대한 내용입니다.",
+            "evidence_at_ms": 0
+          },
+          {
+            "slide_index": 1,
+            "claim": "작업을 시작하려 할 때 주변 정리를 하거나 스마트폰을 만지는 등의 문제 상황",
+            "verdict": "SUPPORTED",
+            "evidence_span": "막상 책상 앞에 앉아서 과제나 작업을 시작하려고 하면 그 이상하게 주변 정리가 갑자기 하고 싶어진다거나 스마트폰을 자꾸 만지작거리게 되잖아요.",
+            "evidence_at_ms": 14000
+          },
+          {
+            "slide_index": 2,
+            "claim": "포모도로 기법(25분 집중 + 5분 휴식)을 1주일간 시도",
+            "verdict": "SUPPORTED",
+            "evidence_span": "포모도로 기법을 한 일주일 정도 직접 시도해 봤습니다.",
+            "evidence_at_ms": 41900
+          },
+          {
+            "slide_index": 3,
+            "claim": "25분 버티는 생각으로 스마트폰 충동을 참게 되고 5분 휴식으로 머리가 맑아짐",
+            "verdict": "SUPPORTED",
+            "evidence_span": "어차피 25분만 버티면 쉴 수 있다라는 생각이 드니까 중간에 폰을 확인하고 싶은 충동을 좀 참게 되더라고요.",
+            "evidence_at_ms": 69700
+          },
+          {
+            "slide_index": 4,
+            "claim": "집중은 의지력보다 환경을 작게 쪼개는 요령이며 25분 타이머 사용 권장",
+            "verdict": "SUPPORTED",
+            "evidence_span": "결국 집중이라는 게 엄청난 의지력이 필요하다기보다는 그냥 내가 딴 짓 하지 못하도록 환경을 작게 쪼개두는 요령의 문제인 것 같습니다.",
+            "evidence_at_ms": 93800
+          }
+        ],
+        "supported_count": 5,
+        "total_claims": 5
+      },
+      "off_topic": [],
+      "logic_gaps": [],
+      "delivery": {
+        "wpm": 97.8,
+        "silence_total_ms": 18140,
+        "long_pauses": [
+          {
+            "start_ms": 0,
+            "duration_ms": 1410
+          },
+          {
+            "start_ms": 77900,
+            "duration_ms": 1250
+          },
+          {
+            "start_ms": 103180,
+            "duration_ms": 2090
+          }
+        ],
+        "fillers": [
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 1940,
+            "duration_ms": 550
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 2740,
+            "duration_ms": 270
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 3880,
+            "duration_ms": 770
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 5760,
+            "duration_ms": 2110
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 9460,
+            "duration_ms": 710
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 10680,
+            "duration_ms": 410
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 13760,
+            "duration_ms": 1170
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 15260,
+            "duration_ms": 310
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 18540,
+            "duration_ms": 510
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 19920,
+            "duration_ms": 350
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 22020,
+            "duration_ms": 710
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 22880,
+            "duration_ms": 870
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 24200,
+            "duration_ms": 250
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 29680,
+            "duration_ms": 730
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 31140,
+            "duration_ms": 390
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 32080,
+            "duration_ms": 450
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 32820,
+            "duration_ms": 590
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 33980,
+            "duration_ms": 390
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 36360,
+            "duration_ms": 870
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 38580,
+            "duration_ms": 490
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 40300,
+            "duration_ms": 810
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 41660,
+            "duration_ms": 530
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 47120,
+            "duration_ms": 1990
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 49540,
+            "duration_ms": 250
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 50880,
+            "duration_ms": 390
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 56100,
+            "duration_ms": 530
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 57320,
+            "duration_ms": 430
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 59280,
+            "duration_ms": 410
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 61440,
+            "duration_ms": 1070
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 63600,
+            "duration_ms": 530
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 65820,
+            "duration_ms": 590
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 67560,
+            "duration_ms": 330
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 69240,
+            "duration_ms": 1890
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 71540,
+            "duration_ms": 1050
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 72980,
+            "duration_ms": 430
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 75160,
+            "duration_ms": 1330
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 82580,
+            "duration_ms": 590
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 85240,
+            "duration_ms": 350
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 86740,
+            "duration_ms": 870
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 90780,
+            "duration_ms": 270
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 91740,
+            "duration_ms": 250
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 94600,
+            "duration_ms": 330
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 95660,
+            "duration_ms": 470
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 98000,
+            "duration_ms": 550
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 99160,
+            "duration_ms": 250
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 101640,
+            "duration_ms": 270
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 107360,
+            "duration_ms": 450
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 109400,
+            "duration_ms": 750
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 110420,
+            "duration_ms": 290
+          },
+          {
+            "type": "그",
+            "text": "그",
+            "at_ms": 22730,
+            "duration_ms": 150
+          }
+        ],
+        "filler_count": 50,
+        "volume_variation": {
+          "relative_std": 0.763,
+          "note": "200ms 프레임 RMS 기준 변동계수 0.76 (값이 클수록 성량 기복이 큼 · 절대 기준값은 실데이터로 보정 필요)"
+        }
+      },
+      "script_diff": null
+    }
+  },
+  {
+    "pair": "test02_집중력_포모도로",
+    "model": "claude-haiku-4-5-20251001",
+    "elapsed_seconds": 9.8,
+    "token_usage": {
+      "prompt_tokens": 5064,
+      "completion_tokens": 1306,
+      "total_tokens": 6370
+    },
+    "report": {
+      "consistency": {
+        "checks": [
+          {
+            "slide_index": 0,
+            "claim": "일상 속 집중력 유지하기, 포모도로 기법 체험기",
+            "verdict": "SUPPORTED",
+            "evidence_span": "오늘 제가 준비한 이야기는 일상에서 집중력을 어떻게 유지하면 좋을지에 대한 내용입니다.",
+            "evidence_at_ms": 0
+          },
+          {
+            "slide_index": 1,
+            "claim": "책상 앞에 앉으면 주변 정리를 하고 싶어지거나 딴짓을 하고 싶어짐",
+            "verdict": "SUPPORTED",
+            "evidence_span": "책상 앞에 앉아서 과제나 작업을 시작하려고 하면 주변 정리가 갑자기 하고 싶어진다거나 스마트폰을 자꾸 만지작거리게 되잖아요.",
+            "evidence_at_ms": 14000
+          },
+          {
+            "slide_index": 1,
+            "claim": "스마트폰 알림 하나 확인하다가 딴 데로 새어버림",
+            "verdict": "SUPPORTED",
+            "evidence_span": "알림 하나 뜨면 확인하다가 삼천포로 빠지는 경우가 진짜 많았거든요.",
+            "evidence_at_ms": 27100
+          },
+          {
+            "slide_index": 2,
+            "claim": "포모도로 기법은 25분 집중 + 5분 휴식",
+            "verdict": "SUPPORTED",
+            "evidence_span": "25분 동안 딱 한 가지 일에만 집중하고 5분은 무조건 쉬는 방식인데요.",
+            "evidence_at_ms": 54800
+          },
+          {
+            "slide_index": 2,
+            "claim": "1주일 직접 시도",
+            "verdict": "SUPPORTED",
+            "evidence_span": "포모도로 기법을 한 일주일 정도 직접 시도해 봤습니다.",
+            "evidence_at_ms": 41900
+          },
+          {
+            "slide_index": 3,
+            "claim": "시작 전에는 반신반의했음",
+            "verdict": "SUPPORTED",
+            "evidence_span": "겨우 25분을 나눠서 한다고 집중력이 확 좋아질까 하고 반신반의했었거든요.",
+            "evidence_at_ms": 54800
+          },
+          {
+            "slide_index": 3,
+            "claim": "\"어차피 25분만 버티면 쉴 수 있다\"는 생각에 폰을 확인하고 싶은 충동을 참게 됨",
+            "verdict": "SUPPORTED",
+            "evidence_span": "어차피 25분만 버티면 쉴 수 있다라는 생각이 드니까 중간에 폰을 확인하고 싶은 충동을 좀 참게 되더라고요.",
+            "evidence_at_ms": 69700
+          },
+          {
+            "slide_index": 3,
+            "claim": "5분 휴식 동안 스트레칭·물 마시기로 머리가 맑아짐",
+            "verdict": "SUPPORTED",
+            "evidence_span": "5분 동안 스트레칭을 하거나 물을 마시고 오면 머리도 한결 맑아지는 느낌이 있었습니다.",
+            "evidence_at_ms": 82800
+          },
+          {
+            "slide_index": 4,
+            "claim": "집중은 의지력이 아니라 환경을 작게 쪼개는 요령의 문제",
+            "verdict": "SUPPORTED",
+            "evidence_span": "집중이라는 게 엄청난 의지력이 필요하다기보다는 그냥 내가 딴 짓 하지 못하도록 환경을 작게 쪼개두는 요령의 문제인 것 같습니다.",
+            "evidence_at_ms": 93800
+          },
+          {
+            "slide_index": 4,
+            "claim": "지금 바로 타이머 25분을 맞춰두고 시작해보기를 권장",
+            "verdict": "SUPPORTED",
+            "evidence_span": "타이머 25분 맞춰 두고 시작해 보시는 걸 추천드립니다.",
+            "evidence_at_ms": 107500
+          }
+        ],
+        "supported_count": 10,
+        "total_claims": 10
+      },
+      "off_topic": [],
+      "logic_gaps": [],
+      "delivery": {
+        "wpm": 97.8,
+        "silence_total_ms": 18140,
+        "long_pauses": [
+          {
+            "start_ms": 0,
+            "duration_ms": 1410
+          },
+          {
+            "start_ms": 77900,
+            "duration_ms": 1250
+          },
+          {
+            "start_ms": 103180,
+            "duration_ms": 2090
+          }
+        ],
+        "fillers": [
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 1940,
+            "duration_ms": 550
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 2740,
+            "duration_ms": 270
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 3880,
+            "duration_ms": 770
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 5760,
+            "duration_ms": 2110
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 9460,
+            "duration_ms": 710
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 10680,
+            "duration_ms": 410
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 13760,
+            "duration_ms": 1170
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 15260,
+            "duration_ms": 310
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 18540,
+            "duration_ms": 510
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 19920,
+            "duration_ms": 350
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 22020,
+            "duration_ms": 710
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 22880,
+            "duration_ms": 870
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 24200,
+            "duration_ms": 250
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 29680,
+            "duration_ms": 730
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 31140,
+            "duration_ms": 390
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 32080,
+            "duration_ms": 450
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 32820,
+            "duration_ms": 590
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 33980,
+            "duration_ms": 390
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 36360,
+            "duration_ms": 870
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 38580,
+            "duration_ms": 490
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 40300,
+            "duration_ms": 810
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 41660,
+            "duration_ms": 530
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 47120,
+            "duration_ms": 1990
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 49540,
+            "duration_ms": 250
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 50880,
+            "duration_ms": 390
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 56100,
+            "duration_ms": 530
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 57320,
+            "duration_ms": 430
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 59280,
+            "duration_ms": 410
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 61440,
+            "duration_ms": 1070
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 63600,
+            "duration_ms": 530
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 65820,
+            "duration_ms": 590
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 67560,
+            "duration_ms": 330
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 69240,
+            "duration_ms": 1890
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 71540,
+            "duration_ms": 1050
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 72980,
+            "duration_ms": 430
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 75160,
+            "duration_ms": 1330
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 82580,
+            "duration_ms": 590
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 85240,
+            "duration_ms": 350
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 86740,
+            "duration_ms": 870
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 90780,
+            "duration_ms": 270
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 91740,
+            "duration_ms": 250
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 94600,
+            "duration_ms": 330
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 95660,
+            "duration_ms": 470
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 98000,
+            "duration_ms": 550
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 99160,
+            "duration_ms": 250
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 101640,
+            "duration_ms": 270
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 107360,
+            "duration_ms": 450
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 109400,
+            "duration_ms": 750
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 110420,
+            "duration_ms": 290
+          }
+        ],
+        "filler_count": 49,
+        "volume_variation": {
+          "relative_std": 0.763,
+          "note": "200ms 프레임 RMS 기준 변동계수 0.76 (값이 클수록 성량 기복이 큼 · 절대 기준값은 실데이터로 보정 필요)"
+        }
+      },
+      "script_diff": null
+    }
+  },
+  {
+    "pair": "test02_집중력_포모도로",
+    "model": "gpt-5.6-sol",
+    "elapsed_seconds": 24.1,
+    "token_usage": {
+      "prompt_tokens": 2798,
+      "completion_tokens": 1588,
+      "total_tokens": 4386
+    },
+    "report": {
+      "consistency": {
+        "checks": [
+          {
+            "slide_index": 0,
+            "claim": "발표 주제는 일상에서 딴짓을 줄이고 집중력을 유지하는 방법이다.",
+            "verdict": "SUPPORTED",
+            "evidence_span": "오늘 제가 준비한 이야기는 일상에서 집중력을 어떻게 유지하면 좋을지에 대한 내용입니다.",
+            "evidence_at_ms": 0
+          },
+          {
+            "slide_index": 0,
+            "claim": "발표자는 함영찬이다.",
+            "verdict": "NO_BASIS",
+            "evidence_span": "이번 발표를 맡게 된 하명찬이라고 합니다.",
+            "evidence_at_ms": 0
+          },
+          {
+            "slide_index": 1,
+            "claim": "과제나 작업을 시작하려 하면 주변을 정리하거나 스마트폰을 확인하는 등 딴짓으로 새기 쉽다.",
+            "verdict": "SUPPORTED",
+            "evidence_span": "주변 정리가 갑자기 하고 싶어진다거나 스마트폰을 자꾸 만지작거리게 되잖아요.",
+            "evidence_at_ms": 14000
+          },
+          {
+            "slide_index": 1,
+            "claim": "딴짓을 줄이고 몰입할 방법에 대한 고민을 시작했다.",
+            "verdict": "SUPPORTED",
+            "evidence_span": "어떻게 하면 딴 짓을 좀 덜 하고 몰입할 수 있을까 그렇게 고민하다가",
+            "evidence_at_ms": 41900
+          },
+          {
+            "slide_index": 2,
+            "claim": "포모도로 기법을 약 1주일 동안 직접 시도했다.",
+            "verdict": "SUPPORTED",
+            "evidence_span": "가장 간단해 보이는 포모도로 기법을 한 일주일 정도 직접 시도해 봤습니다.",
+            "evidence_at_ms": 41900
+          },
+          {
+            "slide_index": 2,
+            "claim": "25분 동안 한 가지 일에 집중한 뒤 5분 동안 쉬는 방식으로 진행했다.",
+            "verdict": "SUPPORTED",
+            "evidence_span": "25분 동안 딱 한 가지 일에만 집중하고 5분은 무조건 쉬는 방식인데요.",
+            "evidence_at_ms": 54800
+          },
+          {
+            "slide_index": 2,
+            "claim": "25분 집중과 5분 휴식의 사이클을 반복하며 하루 작업을 이어갔다.",
+            "verdict": "NOT_MENTIONED",
+            "evidence_span": null,
+            "evidence_at_ms": null
+          },
+          {
+            "slide_index": 3,
+            "claim": "처음에는 25분 단위로 나누는 방법의 효과를 반신반의했다.",
+            "verdict": "SUPPORTED",
+            "evidence_span": "솔직히 처음에는 겨우 25분을 나눠서 한다고 집중력이 확 좋아질까 하고 반신반의했었거든요.",
+            "evidence_at_ms": 54800
+          },
+          {
+            "slide_index": 3,
+            "claim": "25분 후에 쉴 수 있다는 생각 덕분에 스마트폰을 확인하려는 충동을 참게 됐다.",
+            "verdict": "SUPPORTED",
+            "evidence_span": "어차피 25분만 버티면 쉴 수 있다라는 생각이 드니까 중간에 폰을 확인하고 싶은 충동을 좀 참게 되더라고요.",
+            "evidence_at_ms": 82800
+          },
+          {
+            "slide_index": 3,
+            "claim": "5분 동안 스트레칭하거나 물을 마시면 머리가 한결 맑아졌다.",
+            "verdict": "SUPPORTED",
+            "evidence_span": "5분 동안 스트레칭을 하거나 물을 마시고 오면 머리도 한결 맑아지는 느낌이 있었습니다.",
+            "evidence_at_ms": 82800
+          },
+          {
+            "slide_index": 4,
+            "claim": "집중은 강한 의지력보다 딴짓을 막도록 환경을 작게 쪼개는 요령의 문제다.",
+            "verdict": "SUPPORTED",
+            "evidence_span": "집중이라는 게 엄청난 의지력이 필요하다기보다는 그냥 내가 딴 짓 하지 못하도록 환경을 작게 쪼개두는 요령의 문제인 것 같습니다.",
+            "evidence_at_ms": 93800
+          },
+          {
+            "slide_index": 4,
+            "claim": "거창한 계획보다 우선 25분 타이머를 맞추고 시작하는 것이 좋다.",
+            "verdict": "SUPPORTED",
+            "evidence_span": "거창한 계획을 세우기보다 일단 타이머 25분 맞춰 두고 시작해 보시는 걸 추천드립니다.",
+            "evidence_at_ms": 107500
+          }
+        ],
+        "supported_count": 10,
+        "total_claims": 12
+      },
+      "off_topic": [],
+      "logic_gaps": [
+        {
+          "at_ms": 93800,
+          "text": "결국 집중이라는 게 엄청난 의지력이 필요하다기보다는 그냥 내가 딴 짓 하지 못하도록 환경을 작게 쪼개두는 요령의 문제인 것 같습니다.",
+          "note": "1주일간의 개인 체험에서 스마트폰 충동 감소와 휴식 후 개운함은 설명했지만, 집중이 의지력의 문제가 아니라는 일반적인 결론까지 뒷받침할 비교 근거나 인과 설명은 제시하지 않았다."
+        }
+      ],
+      "delivery": {
+        "wpm": 97.8,
+        "silence_total_ms": 18140,
+        "long_pauses": [
+          {
+            "start_ms": 0,
+            "duration_ms": 1410
+          },
+          {
+            "start_ms": 77900,
+            "duration_ms": 1250
+          },
+          {
+            "start_ms": 103180,
+            "duration_ms": 2090
+          }
+        ],
+        "fillers": [
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 1940,
+            "duration_ms": 550
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 2740,
+            "duration_ms": 270
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 3880,
+            "duration_ms": 770
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 5760,
+            "duration_ms": 2110
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 9460,
+            "duration_ms": 710
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 10680,
+            "duration_ms": 410
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 13760,
+            "duration_ms": 1170
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 15260,
+            "duration_ms": 310
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 18540,
+            "duration_ms": 510
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 19920,
+            "duration_ms": 350
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 22020,
+            "duration_ms": 710
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 22880,
+            "duration_ms": 870
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 24200,
+            "duration_ms": 250
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 29680,
+            "duration_ms": 730
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 31140,
+            "duration_ms": 390
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 32080,
+            "duration_ms": 450
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 32820,
+            "duration_ms": 590
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 33980,
+            "duration_ms": 390
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 36360,
+            "duration_ms": 870
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 38580,
+            "duration_ms": 490
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 40300,
+            "duration_ms": 810
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 41660,
+            "duration_ms": 530
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 47120,
+            "duration_ms": 1990
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 49540,
+            "duration_ms": 250
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 50880,
+            "duration_ms": 390
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 56100,
+            "duration_ms": 530
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 57320,
+            "duration_ms": 430
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 59280,
+            "duration_ms": 410
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 61440,
+            "duration_ms": 1070
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 63600,
+            "duration_ms": 530
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 65820,
+            "duration_ms": 590
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 67560,
+            "duration_ms": 330
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 69240,
+            "duration_ms": 1890
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 71540,
+            "duration_ms": 1050
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 72980,
+            "duration_ms": 430
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 75160,
+            "duration_ms": 1330
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 82580,
+            "duration_ms": 590
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 85240,
+            "duration_ms": 350
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 86740,
+            "duration_ms": 870
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 90780,
+            "duration_ms": 270
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 91740,
+            "duration_ms": 250
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 94600,
+            "duration_ms": 330
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 95660,
+            "duration_ms": 470
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 98000,
+            "duration_ms": 550
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 99160,
+            "duration_ms": 250
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 101640,
+            "duration_ms": 270
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 107360,
+            "duration_ms": 450
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 109400,
+            "duration_ms": 750
+          },
+          {
+            "type": "기타",
+            "text": "[VAD 감지 · 원문 미상]",
+            "at_ms": 110420,
+            "duration_ms": 290
+          },
+          {
+            "type": "그",
+            "text": "그",
+            "at_ms": 22730,
+            "duration_ms": 150
+          }
+        ],
+        "filler_count": 50,
+        "volume_variation": {
+          "relative_std": 0.763,
+          "note": "200ms 프레임 RMS 기준 변동계수 0.76 (값이 클수록 성량 기복이 큼 · 절대 기준값은 실데이터로 보정 필요)"
+        }
+      },
+      "script_diff": null
+    }
+  }
+]

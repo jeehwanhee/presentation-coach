@@ -35,12 +35,13 @@ Silero VAD는 PyTorch 텐서 연산(연산 중 GIL 해제) — 둘 다 스레드
 
 from __future__ import annotations
 
+import os
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from pathlib import Path
 
 from app.audio.delivery_metrics import compute_delivery_metrics
-from app.llm.gateway_client import analyze_consistency
+from app.llm.gateway_client import DEFAULT_MODEL, analyze_consistency
 from app.parsing.pptx_parser import parse_pptx
 from app.schemas.job import TranscriptSegment
 from app.schemas.report import AnalysisReport
@@ -83,7 +84,9 @@ def run_analysis(input: AnalysisInput) -> AnalysisOutput:
         delivery_future = pool.submit(
             compute_delivery_metrics, stt_result, input.audio_path, input.audio_duration_ms
         )
-        llm_future = pool.submit(analyze_consistency, slides, stt_result, input.script)
+        # .env의 LLM_GATEWAY_MODEL로 모델 교체 테스트 가능하게(비어있으면 기본값).
+        llm_model = os.environ.get("LLM_GATEWAY_MODEL") or DEFAULT_MODEL
+        llm_future = pool.submit(analyze_consistency, slides, stt_result, input.script, llm_model)
         delivery = delivery_future.result()
         llm_result = llm_future.result()
 

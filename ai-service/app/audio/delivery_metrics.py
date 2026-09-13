@@ -37,7 +37,7 @@ from app.stt.clova_client import TranscriptResult, WordTiming
 GAP_CANDIDATE_THRESHOLD_MS = 250
 
 # 이 값 이상의 침묵 구간(VAD로 "목소리 없음" 확인된 gap)은 long_pauses에 별도 기록.
-LONG_PAUSE_THRESHOLD_MS = 1000
+LONG_PAUSE_THRESHOLD_MS = 3000
 
 # VAD 슬라이스에 앞뒤로 붙이는 패딩(ms). gap 경계를 딱 맞춰 자르면 발화 시작/끝
 # 부분이 잘려서 VAD가 놓칠 수 있어 여유를 둔다(§2-2).
@@ -57,6 +57,10 @@ class _Gap:
 
     start_ms: int
     end_ms: int
+    # True면 오디오 맨 앞(첫 단어 시작 전)/맨 뒤(마지막 단어 끝난 후) gap.
+    # 마이크 세팅·녹음 종료 지연 같은 녹음 아티팩트일 뿐 발표 중 침묵이 아니므로
+    # classify_gaps에서 silence_total_ms/long_pauses 집계 대상에서 제외한다.
+    is_edge: bool = False
 
     @property
     def duration_ms(self) -> int:
@@ -97,13 +101,13 @@ def compute_word_gaps(words: list[WordTiming], audio_duration_ms: int) -> list[_
     if audio_duration_ms <= 0:
         return []
     if not words:
-        return [_Gap(0, audio_duration_ms)]
+        return [_Gap(0, audio_duration_ms, is_edge=True)]
 
     ordered = sorted(words, key=lambda w: w.start_ms)
     gaps: list[_Gap] = []
 
     if ordered[0].start_ms > 0:
-        gaps.append(_Gap(0, ordered[0].start_ms))
+        gaps.append(_Gap(0, ordered[0].start_ms, is_edge=True))
 
     for prev, nxt in zip(ordered, ordered[1:]):
         if nxt.start_ms > prev.end_ms:
@@ -111,7 +115,7 @@ def compute_word_gaps(words: list[WordTiming], audio_duration_ms: int) -> list[_
 
     last = ordered[-1]
     if audio_duration_ms > last.end_ms:
-        gaps.append(_Gap(last.end_ms, audio_duration_ms))
+        gaps.append(_Gap(last.end_ms, audio_duration_ms, is_edge=True))
 
     return [g for g in gaps if g.duration_ms > 0]
 
@@ -152,6 +156,11 @@ def classify_gaps(
     silence_total_ms = 0
 
     for gap in gaps:
+        if gap.is_edge:
+            # 녹음 시작 전(마이크 세팅 등)/종료 후 무음 — 발표 중 침묵이 아니므로
+            # 필러 판정(VAD)도 돌리지 않고 silence_total_ms/long_pauses에서 제외.
+            continue
+
         if gap.duration_ms < GAP_CANDIDATE_THRESHOLD_MS:
             # 정상적인 단어 간 간격 — VAD를 돌릴 정도로 의심스럽지 않음, 침묵으로만 집계.
             silence_total_ms += gap.duration_ms
@@ -178,11 +187,27 @@ def classify_gaps(
     return fillers, silence_total_ms, long_pauses
 
 
-def compute_wpm(word_count: int, audio_duration_ms: int) -> float:
-    """분당 단어 수. word_count는 CLOVA words 배열 길이(어절 단위) 기준."""
-    if audio_duration_ms <= 0:
+def compute_speaking_window_ms(words: list[WordTiming], audio_duration_ms: int) -> int:
+    """실제 발화 구간 길이(첫 단어 시작 ~ 마지막 단어 끝).
+
+    녹음 전후 무음(마이크 세팅 등)까지 분모에 넣으면 WPM이 실제보다 낮게
+    나오므로, WPM은 오디오 전체 길이가 아니라 이 구간 기준으로 계산한다.
+    """
+    if not words:
+        return audio_duration_ms
+    ordered = sorted(words, key=lambda w: w.start_ms)
+    return ordered[-1].end_ms - ordered[0].start_ms
+
+
+def compute_wpm(word_count: int, speaking_window_ms: int) -> float:
+    """분당 단어 수. word_count는 CLOVA words 배열 길이(어절 단위) 기준.
+
+    speaking_window_ms는 오디오 전체 길이가 아니라 실제 발화 구간 길이
+    (compute_speaking_window_ms 참고) — 녹음 전후 무음에 왜곡되지 않도록.
+    """
+    if speaking_window_ms <= 0:
         return 0.0
-    minutes = audio_duration_ms / 60_000
+    minutes = speaking_window_ms / 60_000
     return round(word_count / minutes, 1) if minutes > 0 else 0.0
 
 
@@ -225,9 +250,10 @@ def compute_delivery_metrics(
     wav = _load_audio_16k_mono(audio_path)
     gaps = compute_word_gaps(transcript.words, audio_duration_ms)
     fillers, silence_total_ms, long_pauses = classify_gaps(wav, gaps)
+    speaking_window_ms = compute_speaking_window_ms(transcript.words, audio_duration_ms)
 
     return Delivery(
-        wpm=compute_wpm(len(transcript.words), audio_duration_ms),
+        wpm=compute_wpm(len(transcript.words), speaking_window_ms),
         silence_total_ms=silence_total_ms,
         long_pauses=long_pauses,
         fillers=fillers,
