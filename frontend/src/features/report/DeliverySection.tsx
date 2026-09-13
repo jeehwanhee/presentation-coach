@@ -26,7 +26,7 @@ function formatMs(ms: number): string {
  *   (National Communication Association 기준 인용, virtualspeech.com 등 다수 출처)
  * - 채움말: 평균 화자 분당 5회, 전문 발표자 분당 1~2회, 분당 10회 넘으면 확실히 거슬림
  *   (Quantified Communications, Carleton Univ. 커뮤니케이션 연구)
- * - "긴 침묵"(long_pauses)은 ai-service가 1초(LONG_PAUSE_THRESHOLD_MS) 이상 공백을
+ * - "긴 침묵"(long_pauses)은 ai-service가 3초(LONG_PAUSE_THRESHOLD_MS) 이상 공백을
  *   기준으로 잡음 — TED의 "분당 5회 전략적 멈춤"(의도된 임팩트용) 통계와는 성격이
  *   달라 그대로 못 쓰고 보수적으로 별도 기준을 잡음.
  * - 침묵 비율은 리서치에서 직접적인 기준을 못 찾아 일반적인 판단으로 잡음.
@@ -36,6 +36,7 @@ function formatMs(ms: number): string {
 function wpmCard(wpm: number): CardContent {
   const rounded = Math.round(wpm);
   const description = "1분 동안 말한 단어 수";
+  const descriptionNote = "(적정 구간: 120~160 WPM)";
 
   if (wpm >= 120 && wpm <= 160) {
     return {
@@ -44,6 +45,7 @@ function wpmCard(wpm: number): CardContent {
       tone: "good",
       label: "적절",
       description,
+      descriptionNote,
       tip: "지금 속도를 그대로 유지하면 돼요.",
     };
   }
@@ -55,6 +57,7 @@ function wpmCard(wpm: number): CardContent {
       tone,
       label: tone === "mid" ? "보통" : "개선 필요",
       description,
+      descriptionNote,
       tip: "속도가 느린 편이에요. 문장 사이 불필요한 머뭇거림을 줄이고, 핵심 위주로 리듬감 있게 말해보세요.",
     };
   }
@@ -65,6 +68,7 @@ function wpmCard(wpm: number): CardContent {
     tone,
     label: tone === "mid" ? "보통" : "개선 필요",
     description,
+    descriptionNote,
     tip: "속도가 빠른 편이에요. 문장 사이에 짧게 숨을 고르면서 청중이 따라올 시간을 주세요.",
   };
 }
@@ -154,7 +158,7 @@ function silenceCard(silenceMs: number, audioDurationMs: number | null): CardCon
 }
 
 function longPauseCard(count: number, durationMin: number | null): CardContent {
-  const description = "1초 이상 길게 멈춘 구간의 개수";
+  const description = "3초 이상 길게 멈춘 구간의 개수";
   const descriptionNote = "(발표 길이 대비 분당 기준)";
 
   if (!durationMin) {
