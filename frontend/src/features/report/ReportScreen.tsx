@@ -77,10 +77,10 @@ export function ReportScreen() {
 
       <ConsistencySection consistency={report.consistency} />
 
-      {report.off_topic.length > 0 && (
-        <section className="report-section">
-          <h3>주제 이탈</h3>
-          <p className="field-hint">슬라이드 주제와 무관한 이야기를 한 구간</p>
+      <section className="report-section">
+        <h3>주제 이탈</h3>
+        <p className="field-hint">슬라이드 주제와 무관한 이야기를 한 구간</p>
+        {report.off_topic.length > 0 ? (
           <ul className="off-topic-list">
             {report.off_topic.map((seg, i) => (
               <li key={i}>
@@ -89,22 +89,26 @@ export function ReportScreen() {
               </li>
             ))}
           </ul>
-        </section>
-      )}
+        ) : (
+          <p className="field-hint">주제와 무관한 발화가 발견되지 않았어요.</p>
+        )}
+      </section>
 
-      {report.logic_gaps.length > 0 && (
-        <section className="report-section">
-          <h3>논리 비약</h3>
-          <ul className="simple-list">
+      <section className="report-section">
+        <h3>논리 비약</h3>
+        {report.logic_gaps.length > 0 ? (
+          <ul className="off-topic-list">
             {report.logic_gaps.map((gap, i) => (
               <li key={i}>
-                <p>{gap.text}</p>
-                <span className="field-hint">{gap.note}</span>
+                <p className="off-topic-text">{gap.text}</p>
+                <p className="off-topic-reason">{gap.note}</p>
               </li>
             ))}
           </ul>
-        </section>
-      )}
+        ) : (
+          <p className="field-hint">논리 비약이 발견되지 않았어요.</p>
+        )}
+      </section>
 
       <DeliverySection delivery={report.delivery} audioDurationMs={data.audio_duration_ms} />
 
