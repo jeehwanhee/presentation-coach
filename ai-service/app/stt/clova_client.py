@@ -106,7 +106,19 @@ def _parse_response(data: dict) -> TranscriptResult:
 
     segments[]가 없거나 words가 없는 경우도 방어적으로 처리 — 짧은 오디오나
     무음 구간만 있는 경우 등.
+
+    2026-09-12에 발견한 문제: CLOVA는 사용량 초과 등 일부 실패 상황에서도
+    HTTP 200을 주고 본문에 `result`/`message`로만 실패를 표시하는 것으로
+    보임(공식 문서: 동기 호출 성공 시 `result: "COMPLETED"`). 예전 코드는
+    이 필드를 안 보고 바로 segments[]만 봐서, 실패해도 "그냥 무음이라
+    세그먼트가 없는 정상 응답"처럼 보였음 — 모델 비교 테스트에서 3개 모델
+    다 transcript가 텅 비어서 나온 원인이 이거였을 가능성이 높음. 이제
+    result가 COMPLETED가 아니면 바로 SttError로 명확히 실패 처리한다.
     """
+    result = data.get("result")
+    if result is not None and result not in ("COMPLETED", "SUCCEEDED"):
+        raise SttError(f"CLOVA 인식 실패 (result={result!r}): {data.get('message', '메시지 없음')}")
+
     full_text = data.get("text", "") or ""
     segments: list[TranscriptSegment] = []
     words: list[WordTiming] = []

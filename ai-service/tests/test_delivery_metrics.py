@@ -38,6 +38,12 @@ class TestComputeWordGaps:
             (300, 900),
             (1000, 1200),
         ]
+        # 맨 앞/맨 뒤는 녹음 아티팩트로 보고 is_edge=True, 중간 gap은 False.
+        assert [g.is_edge for g in gaps] == [True, False, True]
+
+    def test_no_words_gap_is_marked_edge(self):
+        gaps = dm.compute_word_gaps([], audio_duration_ms=5000)
+        assert gaps[0].is_edge is True
 
     def test_no_gap_when_words_are_back_to_back(self):
         words = _words((0, 500), (500, 1000))
@@ -105,14 +111,59 @@ class TestClassifyGaps:
         assert silence_total_ms == gap_duration
         assert long_pauses == []
 
+    def test_edge_gap_is_excluded_even_if_long(self, monkeypatch):
+        def _boom(*args, **kwargs):
+            raise AssertionError("edge gap은 VAD를 호출하면 안 됨")
+
+        monkeypatch.setattr(dm, "_is_voiced", _boom)
+        # 녹음 시작 전 5초 무음(마이크 세팅) — LONG_PAUSE_THRESHOLD_MS보다 길어도
+        # is_edge=True면 silence_total_ms/long_pauses 어디에도 잡히면 안 됨.
+        gaps = [dm._Gap(0, 5000, is_edge=True)]
+
+        fillers, silence_total_ms, long_pauses = dm.classify_gaps(np.zeros(1), gaps)
+
+        assert fillers == []
+        assert silence_total_ms == 0
+        assert long_pauses == []
+
+    def test_edge_and_internal_gaps_mixed(self, monkeypatch):
+        monkeypatch.setattr(dm, "_is_voiced", lambda wav, gap: False)
+        edge_leading = dm._Gap(0, 5000, is_edge=True)
+        internal = dm._Gap(5000, 5000 + dm.LONG_PAUSE_THRESHOLD_MS)
+        edge_trailing = dm._Gap(20_000, 24_000, is_edge=True)
+
+        fillers, silence_total_ms, long_pauses = dm.classify_gaps(
+            np.zeros(1), [edge_leading, internal, edge_trailing]
+        )
+
+        # 발표 중간의 긴 침묵만 집계되고, 앞/뒤 녹음 여백은 완전히 빠져야 함.
+        assert silence_total_ms == dm.LONG_PAUSE_THRESHOLD_MS
+        assert len(long_pauses) == 1
+        assert long_pauses[0].start_ms == internal.start_ms
+
+
+class TestComputeSpeakingWindowMs:
+    def test_no_words_falls_back_to_audio_duration(self):
+        assert dm.compute_speaking_window_ms([], audio_duration_ms=5000) == 5000
+
+    def test_uses_first_word_start_to_last_word_end(self):
+        # 오디오는 0~10000이지만 실제 발화는 500~9000 구간뿐 -> 창은 8500이어야 함
+        # (녹음 시작 전/종료 후 무음이 WPM 분모에 섞이면 안 됨).
+        words = _words((500, 700), (8800, 9000))
+        assert dm.compute_speaking_window_ms(words, audio_duration_ms=10_000) == 8500
+
+    def test_unordered_words_are_sorted_first(self):
+        words = _words((8800, 9000), (500, 700))
+        assert dm.compute_speaking_window_ms(words, audio_duration_ms=10_000) == 8500
+
 
 class TestComputeWpm:
     def test_basic(self):
-        # 60초에 단어 150개 -> 분당 150
-        assert dm.compute_wpm(word_count=150, audio_duration_ms=60_000) == 150.0
+        # 60초 발화 구간에 단어 150개 -> 분당 150
+        assert dm.compute_wpm(word_count=150, speaking_window_ms=60_000) == 150.0
 
     def test_zero_duration_is_zero(self):
-        assert dm.compute_wpm(word_count=10, audio_duration_ms=0) == 0.0
+        assert dm.compute_wpm(word_count=10, speaking_window_ms=0) == 0.0
 
 
 class TestComputeVolumeVariation:
