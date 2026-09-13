@@ -20,3 +20,7 @@ jobs:
             cd backend
             ./gradlew bootJar -x test
             sudo systemctl restart coach
+            cd ~/presentation-coach/ai-service
+            source .venv/bin/activate
+            pip install -r requirements.txt
+            sudo systemctl restart coach-ai

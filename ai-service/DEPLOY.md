@@ -100,14 +100,6 @@ sudo journalctl -u coach-ai -f
 
 로그에 `SQS 폴링 시작: https://sqs...`가 찍히면 정상입니다. 이 상태에서 프론트/테스트 스크립트로 발표를 하나 제출하면, 이 로그에 `잡 수신 → 잡 완료, 메시지 삭제`가 순서대로 찍히는지 보면 됩니다(안 되면 `.env`의 `WORKER_SECRET`/`SQS_QUEUE_URL`/`S3_BUCKET`부터 의심).
 
-## (선택) 자동배포 붙이기
+## 자동배포
 
-지금 `.github/workflows/deploy.yml`은 backend만 대상입니다. 원하면 아래를 추가해서 push할 때마다 ai-service도 같이 갱신되게 할 수 있습니다:
-
-```yaml
-            cd ~/presentation-coach/ai-service
-            source .venv/bin/activate
-            pip install -r requirements.txt
-            sudo systemctl restart coach-ai
-```
-(위 backend 배포 스텝 밑에 이어붙이면 됩니다.)
+`.github/workflows/deploy.yml`이 backend 배포 스텝 밑에 ai-service 스텝도 이어붙여져 있어서, main에 push하면 ai-service도 같이 `git pull` → `pip install -r requirements.txt` → `coach-ai` 재시작까지 자동으로 됩니다.
