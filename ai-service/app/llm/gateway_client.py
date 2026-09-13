@@ -190,6 +190,12 @@ class _LlmOutput(BaseModel):
     group_b_fillers: list[_LlmGroupBJudgment]
 
 
+class _LlmChecksOnly(BaseModel):
+    """누락 슬라이드 재시도 호출 전용 응답 스키마 — checks만 받는다."""
+
+    checks: list[_LlmConsistencyCheck]
+
+
 _SYSTEM_PROMPT = """\
 너는 발표 리허설을 돕는 코치의 분석 엔진이다. 발표자의 슬라이드 내용과 실제
 발화 전사(시간 순서대로 번호가 붙은 세그먼트)를 비교해서 아래 항목을 판단한다.
@@ -201,6 +207,12 @@ _SYSTEM_PROMPT = """\
    - NOT_MENTIONED: 슬라이드에는 있는데 발화에서 언급 자체를 안 함.
    - NO_BASIS: 슬라이드 내용과 다르거나 근거 없이 다른 주장을 함.
    evidence_segment_index는 판정의 근거가 된 세그먼트 번호(NOT_MENTIONED면 -1).
+   **주장 추출은 슬라이드 내용만 보고 한다 — 발화 분량과 무관하다.** 발화가
+   아주 짧거나(예: 마이크 테스트), 슬라이드 내용을 전혀 언급하지 않았어도 그
+   이유로 주장 추출 자체를 건너뛰지 않는다. 주어진 slides 목록의 모든
+   slide_index에 대해 최소 1개씩 checks 항목을 반드시 만들 것 — 근거를 못
+   찾으면 그 주장은 NOT_MENTIONED로 판정하면 되고, 주장을 아예 안 만드는 것은
+   허용되지 않는다.
 2. off_topic: 슬라이드 주제와 무관한 발화 구간(예: 잡담, 본론과 상관없는 이야기).
    start/end_segment_index로 구간을 표시.
 3. logic_gaps: 근거 설명 없이 결론으로 건너뛰거나 인과관계가 불명확한 구간.
@@ -219,6 +231,30 @@ _SYSTEM_PROMPT = """\
 
 세그먼트 번호(segment_index)는 항상 입력으로 주어진 범위 안의 정수여야 하고,
 근거를 못 찾으면 -1을 쓴다. 지어낸 번호를 쓰지 않는다.\
+"""
+
+
+# 1차 호출에서 슬라이드가 누락됐을 때 그 슬라이드만 다시 강제 판정시키는 재시도
+# 전용 프롬프트. _fallback_claim(슬라이드 첫 줄 잘라내기)보다 먼저 시도한다 —
+# 실제 LLM 판단이 원문 첫 줄보다 낫기 때문. 발화 분량/내용과 무관하게 반드시
+# 모든 slide_index에 대해 checks를 만들라고 다시 한번 명시적으로 강제한다.
+_RETRY_SYSTEM_PROMPT = """\
+너는 발표 슬라이드의 핵심 주장을 뽑아 발화 내용과 대조하는 채점자다. 지금
+주어지는 slides는 1차 분석에서 어떤 이유로든 판정이 누락된 슬라이드들이다.
+발화 분량이 적거나 슬라이드 내용과 전혀 무관해 보여도 그 이유로 절대
+건너뛰지 않는다 — 주어진 slides 목록의 모든 slide_index에 대해 반드시
+1개 이상의 checks 항목을 만들어야 한다(항목을 아예 안 만드는 것은 허용되지
+않는다).
+
+각 슬라이드의 핵심 주장을 슬라이드 텍스트만 보고 뽑은 뒤, 그 주장이
+transcript_segments(시간 순서대로 번호가 붙은 발화 세그먼트)에서 어떻게
+다뤄졌는지 판정한다.
+- SUPPORTED: 발화에서 해당 주장을 뒷받침하는 내용을 실제로 말함.
+- NOT_MENTIONED: 슬라이드에는 있는데 발화에서 언급 자체를 안 함.
+- NO_BASIS: 슬라이드 내용과 다르거나 근거 없이 다른 주장을 함.
+evidence_segment_index는 판정의 근거가 된 세그먼트 번호(근거를 못 찾으면
+-1). 지어낸 세그먼트 번호를 쓰지 않는다. 반드시 주어진 JSON 스키마 형식으로만
+답한다.\
 """
 
 
@@ -286,8 +322,69 @@ def _resolve_segment_ms(
     return seg.start_ms, seg.end_ms
 
 
+_FALLBACK_CLAIM_MAX_LEN = 80
+
+
+def _fallback_claim(slide_text: str) -> str:
+    """LLM이 이 슬라이드에 대한 checks 항목을 하나도 안 만들었을 때 쓰는 대체 주장문.
+
+    시스템 프롬프트가 "모든 슬라이드에 최소 1개"를 지시하지만 LLM 지시 이행은
+    보장되지 않으므로(발화가 아주 짧거나 주제와 무관할 때 슬라이드 자체를
+    건너뛰는 사례 실측 확인), _to_result에서 코드로 한 번 더 강제한다. 슬라이드
+    원문의 첫 줄(대개 제목/핵심 문장)을 잘라서 claim으로 쓴다.
+    """
+    for line in slide_text.splitlines():
+        line = line.strip()
+        if line:
+            return line[:_FALLBACK_CLAIM_MAX_LEN]
+    return "(슬라이드 내용 없음)"
+
+
+def _retry_missing_slide_checks(
+    client: OpenAI,
+    model: str,
+    missing_slides: list[Slide],
+    segments: list[TranscriptSegment],
+) -> list[_LlmConsistencyCheck]:
+    """1차 호출에서 누락된 슬라이드만 골라 LLM에게 재판정을 다시 강제로 시킨다.
+
+    _fallback_claim(슬라이드 원문 첫 줄 잘라내기)으로 바로 채우지 않고, 발화
+    분량과 무관하게 진짜 주장 추출 + 판정을 한 번 더 LLM에 요청한다 — 이
+    호출도 실패하면(네트워크/파싱 등) 예외를 그대로 던지고, 호출부
+    (analyze_consistency)에서 잡아서 _to_result의 코드 백필로 넘어간다(최종
+    안전망은 그대로 유지).
+    """
+    payload = {
+        "slides": [{"slide_index": s.slide_index, "text": s.text} for s in missing_slides],
+        "transcript_segments": [
+            {"index": i, "start_ms": seg.start_ms, "end_ms": seg.end_ms, "text": seg.text}
+            for i, seg in enumerate(segments)
+        ],
+    }
+    response = client.chat.completions.create(
+        model=model,
+        messages=[
+            {"role": "system", "content": _RETRY_SYSTEM_PROMPT},
+            {"role": "user", "content": json.dumps(payload, ensure_ascii=False)},
+        ],
+        response_format={
+            "type": "json_schema",
+            "json_schema": {
+                "name": "missing_slide_checks",
+                "strict": True,
+                "schema": _strict_json_schema(_LlmChecksOnly),
+            },
+        },
+    )
+    raw = response.choices[0].message.content
+    if not raw:
+        raise LlmError("누락 슬라이드 재시도 응답이 비어있음")
+    return _LlmChecksOnly.model_validate_json(raw).checks
+
+
 def _to_result(
     parsed: _LlmOutput,
+    slides: list[Slide],
     segments: list[TranscriptSegment],
     candidates: list[GroupBCandidate],
     has_script: bool,
@@ -304,6 +401,30 @@ def _to_result(
                 evidence_at_ms=resolved[0] if resolved else None,
             )
         )
+
+    # 슬라이드 커버리지 강제: 프롬프트로 "모든 슬라이드에 최소 1개"를 요청해도
+    # LLM이 빼먹을 수 있어(발화가 부실할 때 실측으로 확인된 사례), 코드에서
+    # 한 번 더 검증하고 빠진 슬라이드는 NOT_MENTIONED로 채워 넣는다 — 리포트에
+    # 슬라이드가 통째로 누락되는 일이 없도록.
+    covered = {c.slide_index for c in checks}
+    for slide in slides:
+        if slide.slide_index in covered:
+            continue
+        logger.warning(
+            "슬라이드 %d에 대한 정합성 판정을 LLM이 만들지 않아 자동으로 보강함",
+            slide.slide_index,
+        )
+        checks.append(
+            ConsistencyCheck(
+                slide_index=slide.slide_index,
+                claim=_fallback_claim(slide.text),
+                verdict=ConsistencyVerdict.NOT_MENTIONED,
+                evidence_span=None,
+                evidence_at_ms=None,
+            )
+        )
+    checks.sort(key=lambda c: c.slide_index)
+
     supported_count = sum(1 for c in checks if c.verdict == ConsistencyVerdict.SUPPORTED)
     consistency = Consistency(
         checks=checks, supported_count=supported_count, total_claims=len(checks)
@@ -434,7 +555,24 @@ def analyze_consistency(
     except Exception as exc:
         raise LlmError(f"LLM 응답 파싱 실패: {exc}") from exc
 
-    result = _to_result(parsed, transcript.segments, candidates, has_script=script is not None)
+    # 슬라이드 커버리지 강제(2단계): 1차 호출에서 빠진 슬라이드가 있으면, 그
+    # 슬라이드들만 골라 발화 내용과 무관하게 진짜 재판정을 한 번 더 시도한다.
+    # 이 재시도 호출조차 실패하면 여기서는 경고만 남기고 넘어가고, 최종적으로
+    # _to_result가 여전히 비어있는 슬라이드를 NOT_MENTIONED로 백필한다.
+    covered = {c.slide_index for c in parsed.checks}
+    missing_slides = [s for s in slides if s.slide_index not in covered]
+    if missing_slides:
+        try:
+            retry_checks = _retry_missing_slide_checks(
+                client, model, missing_slides, transcript.segments
+            )
+            parsed.checks.extend(retry_checks)
+        except Exception as exc:
+            logger.warning(
+                "누락 슬라이드 재시도 LLM 호출 실패, 코드 백필로 대체함: %s", exc
+            )
+
+    result = _to_result(parsed, slides, transcript.segments, candidates, has_script=script is not None)
 
     usage = getattr(response, "usage", None)
     if usage is not None:
