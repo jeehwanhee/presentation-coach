@@ -1,6 +1,6 @@
 # ai-service
 
-발표 리허설 코치 — AI 분석 파트 (Python / FastAPI).
+PTPT(프레젠테이션 퍼스널 트레이닝) — AI 분석 파트 (Python / FastAPI).
 STT(음성 인식), 발화 전달력 분석(WPM·침묵·필러), 대본 정합성 판정을 담당하는 SQS 워커입니다.
 
 ## 이 서비스가 하는 일

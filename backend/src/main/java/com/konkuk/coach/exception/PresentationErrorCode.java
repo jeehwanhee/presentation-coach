@@ -7,7 +7,8 @@ public enum PresentationErrorCode implements CustomErrorCode {
     PRESENTATION_EXPIRED(HttpStatus.GONE, "PRESENTATION_EXPIRED", "리포트가 만료되었습니다."),
     PRESENTATION_NOT_FOUND(HttpStatus.FORBIDDEN, "PRESENTATION_NOT_FOUND", "존재하지 않거나 접근 권한이 없는 발표입니다."),
     INVALID_WORKER_SECRET(HttpStatus.FORBIDDEN, "INVALID_WORKER_SECRET", "워커 시크릿이 일치하지 않습니다."),
-    AUDIO_DURATION_EXCEEDED(HttpStatus.BAD_REQUEST, "AUDIO_DURATION_EXCEEDED", "오디오 길이가 10분 제한을 초과했습니다.");
+    AUDIO_DURATION_EXCEEDED(HttpStatus.BAD_REQUEST, "AUDIO_DURATION_EXCEEDED", "오디오 길이가 10분 제한을 초과했습니다."),
+    ALREADY_SUBMITTED(HttpStatus.CONFLICT, "ALREADY_SUBMITTED", "이미 제출된 발표입니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

@@ -1,6 +1,6 @@
 # ai-service 서버 배포 가이드 (EC2, systemd)
 
-> 발표 리허설 코치 · ai-service(SQS 워커) 배포 방법.
+> PTPT · ai-service(SQS 워커) 배포 방법.
 > 백엔드(`coach.service`)랑 같은 방식(systemd, 같은 EC2)으로 맞췄습니다.
 > ai-service 코드/의존성 내용은 함영찬이 정리, 실제 EC2 접속·systemd 등록은 이 문서 보고 진행해주시면 됩니다.
 

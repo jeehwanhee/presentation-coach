@@ -85,6 +85,10 @@ public class PresentationService {
             throw new BusinessException(PresentationErrorCode.PRESENTATION_NOT_FOUND);
         }
 
+        if (presentation.getStatus() != PresentationStatus.PENDING) {
+            throw new BusinessException(PresentationErrorCode.ALREADY_SUBMITTED);
+        }
+
         if (request.audioDurationMs() > AUDIO_LIMIT_MS) {
             throw new BusinessException(PresentationErrorCode.AUDIO_DURATION_EXCEEDED,
                     "오디오 길이(" + request.audioDurationMs() + "ms)가 10분 제한을 초과했습니다.");
@@ -147,9 +151,9 @@ public class PresentationService {
         }
 
         return switch (presentation.getStatus()) {
-            case DONE -> PresentationReportResponse.done(presentation.getId(), presentation.getReportJson());
-            case FAILED -> PresentationReportResponse.failed(presentation.getId(), presentation.getErrorCode(), presentation.getErrorMessage());
-            case PENDING, PROCESSING -> PresentationReportResponse.processing(presentation.getId());
+            case DONE -> PresentationReportResponse.done(presentation.getId(), presentation.getTitle(), presentation.getAudioDurationMs(), presentation.getReportJson());
+            case FAILED -> PresentationReportResponse.failed(presentation.getId(), presentation.getTitle(), presentation.getAudioDurationMs(), presentation.getErrorCode(), presentation.getErrorMessage());
+            case PENDING, PROCESSING -> PresentationReportResponse.processing(presentation.getId(), presentation.getTitle(), presentation.getAudioDurationMs());
         };
     }
 

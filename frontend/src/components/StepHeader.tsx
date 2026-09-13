@@ -1,7 +1,14 @@
-export function StepHeader() {
+interface StepHeaderProps {
+  subtitle?: string;
+}
+
+export function StepHeader({ subtitle }: StepHeaderProps) {
   return (
     <div className="step-header">
-      <span className="brand">리허설 코치</span>
+      <span className="brand">
+        PTPT
+        {subtitle && ` - ${subtitle}`}
+      </span>
     </div>
   );
 }

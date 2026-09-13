@@ -14,7 +14,7 @@ from pydantic import BaseModel
 
 from app.pipeline.run_analysis import AnalysisInput, AnalysisOutput, run_analysis
 
-app = FastAPI(title="발표 리허설 코치 · ai-service")
+app = FastAPI(title="PTPT · ai-service")
 
 
 @app.get("/health")

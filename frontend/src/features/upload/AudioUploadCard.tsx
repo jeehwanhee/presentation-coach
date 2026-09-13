@@ -1,38 +1,37 @@
 import type { ReactNode } from "react";
 import { useRef, useState } from "react";
+import type { SelectionStatus } from "./UploadCard";
+import { AudioRecordPanel } from "./AudioRecordPanel";
 import { formatFileSize } from "./formatFileSize";
 
-export type SelectionStatus = "empty" | "selected" | "uploading" | "error";
-
-interface UploadCardProps {
+interface AudioUploadCardProps {
   icon: ReactNode;
   title: ReactNode;
   hint?: ReactNode;
-  accept: string;
+  required?: boolean;
   status: SelectionStatus;
   fileName: string | null;
   fileSize: number | null;
   errorMessage: string | null;
   onSelect: (file: File) => void;
   onClear?: () => void;
-  required?: boolean;
 }
 
-export function UploadCard({
+export function AudioUploadCard({
   icon,
   title,
   hint,
-  accept,
+  required = false,
   status,
   fileName,
   fileSize,
   errorMessage,
   onSelect,
   onClear,
-  required = false,
-}: UploadCardProps) {
-  const inputRef = useRef<HTMLInputElement>(null);
+}: AudioUploadCardProps) {
+  const [mode, setMode] = useState<"file" | "record">("file");
   const [dragActive, setDragActive] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -68,6 +67,25 @@ export function UploadCard({
       </div>
 
       {isEmptyLike && (
+        <div className="audio-mode-tabs">
+          <button
+            type="button"
+            className={`audio-mode-tab ${mode === "file" ? "active" : ""}`}
+            onClick={() => setMode("file")}
+          >
+            파일 선택
+          </button>
+          <button
+            type="button"
+            className={`audio-mode-tab ${mode === "record" ? "active" : ""}`}
+            onClick={() => setMode("record")}
+          >
+            직접 녹음
+          </button>
+        </div>
+      )}
+
+      {isEmptyLike && mode === "file" && (
         <>
           <button
             type="button"
@@ -83,9 +101,11 @@ export function UploadCard({
             {status === "empty" && "클릭 또는 드래그해서 넣기"}
             {status === "error" && "다시 시도"}
           </button>
-          <input ref={inputRef} type="file" accept={accept} hidden onChange={handleChange} />
+          <input ref={inputRef} type="file" accept="audio/*" hidden onChange={handleChange} />
         </>
       )}
+
+      {isEmptyLike && mode === "record" && <AudioRecordPanel onRecorded={onSelect} />}
 
       {isDone && fileName && (
         <div className="file-chip">

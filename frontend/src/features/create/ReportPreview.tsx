@@ -101,14 +101,14 @@ export function ReportPreview() {
         <div className="stat">
           <span className="stat-value">
             {wpm}
-            <span className="stat-rating tone-good">적정</span>
+            <span className="stat-rating tone-good">적절</span>
           </span>
           <span className="stat-label">말하기 속도(WPM)</span>
         </div>
         <div className="stat">
           <span className="stat-value">
             {fillers}
-            <span className="stat-rating tone-high">많음</span>
+            <span className="stat-rating tone-bad">개선 필요</span>
           </span>
           <span className="stat-label">채움말 빈도</span>
         </div>

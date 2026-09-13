@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { useParams, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { StepHeader } from "../../components/StepHeader";
 import { usePollReport } from "./usePollReport";
 import { ConsistencySection } from "./ConsistencySection";
 import { DeliverySection } from "./DeliverySection";
 import { ScriptDiffSection } from "./ScriptDiffSection";
+import { SummarySection } from "./SummarySection";
 import { ApiError } from "../../api/client";
 
 const ERROR_MESSAGE: Record<string, string> = {
@@ -36,7 +37,12 @@ export function ReportScreen() {
   if (!data || data.status === "PENDING" || data.status === "PROCESSING") {
     return (
       <div className="app-content">
-        <StepHeader />
+        <StepHeader subtitle="리포트" />
+        {data && (
+          <div className="app-heading">
+            <h2>{data.title}</h2>
+          </div>
+        )}
         <div className="processing-state">
           <div className="spinner" />
           <p>발표를 분석하고 있어요. 잠시만 기다려주세요...</p>
@@ -59,15 +65,22 @@ export function ReportScreen() {
 
   return (
     <div className="app-content">
-      <StepHeader />
+      <StepHeader subtitle="리포트" />
+
+      <div className="app-heading">
+        <h2>{data.title}</h2>
+      </div>
 
       <ShareNotice />
+
+      <SummarySection report={report} audioDurationMs={data.audio_duration_ms} />
 
       <ConsistencySection consistency={report.consistency} />
 
       {report.off_topic.length > 0 && (
         <section className="report-section">
           <h3>주제 이탈</h3>
+          <p className="field-hint">슬라이드 주제와 무관한 이야기를 한 구간</p>
           <ul className="simple-list">
             {report.off_topic.map((seg, i) => (
               <li key={i}>
@@ -93,10 +106,21 @@ export function ReportScreen() {
         </section>
       )}
 
-      <DeliverySection delivery={report.delivery} />
+      <DeliverySection delivery={report.delivery} audioDurationMs={data.audio_duration_ms} />
 
       {report.script_diff && <ScriptDiffSection scriptDiff={report.script_diff} />}
+
+      <HomeButton />
     </div>
+  );
+}
+
+function HomeButton() {
+  const navigate = useNavigate();
+  return (
+    <button type="button" className="home-button" onClick={() => navigate("/")}>
+      새 발표 분석하기
+    </button>
   );
 }
 
@@ -131,6 +155,7 @@ function StatusScreen({ title, message }: { title: string; message: string }) {
         <h2>{title}</h2>
         <p>{message}</p>
       </div>
+      <HomeButton />
     </div>
   );
 }
