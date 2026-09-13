@@ -275,10 +275,17 @@ export function DeliverySection({ delivery, audioDurationMs }: DeliverySectionPr
         <Card card={longPauses} />
         <Card card={volume} />
       </div>
-      <p className="field-hint">
-        발표 길이를 반영해 분당 비율로 평가했어요. 일반적인 발표 가이드라인 기준 참고값이라
-        주제·상황에 따라 실제 적정 수준은 다를 수 있어요.
-      </p>
+      <ul className="notice-list">
+        <li>
+          <span className="notice-dot" />
+          발표 길이를 반영해 분당 비율로 평가했어요. 일반적인 발표 가이드라인 기준 참고값이라
+          주제·상황에 따라 실제 적정 수준은 다를 수 있어요.
+        </li>
+        <li>
+          <span className="notice-dot" />
+          이 리포트는 생성 후 3일이 지나면 자동으로 사라져요. 다시 보려면 위 링크를 꼭 저장해두세요.
+        </li>
+      </ul>
     </section>
   );
 }

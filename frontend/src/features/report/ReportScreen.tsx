@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { StepHeader } from "../../components/StepHeader";
 import { usePollReport } from "./usePollReport";
 import { ConsistencySection } from "./ConsistencySection";
@@ -37,7 +37,7 @@ export function ReportScreen() {
   if (!data || data.status === "PENDING" || data.status === "PROCESSING") {
     return (
       <div className="app-content">
-        <StepHeader />
+        <StepHeader subtitle="리포트" />
         {data && (
           <div className="app-heading">
             <h2>{data.title}</h2>
@@ -65,7 +65,7 @@ export function ReportScreen() {
 
   return (
     <div className="app-content">
-      <StepHeader />
+      <StepHeader subtitle="리포트" />
 
       <div className="app-heading">
         <h2>{data.title}</h2>
@@ -109,7 +109,18 @@ export function ReportScreen() {
       <DeliverySection delivery={report.delivery} audioDurationMs={data.audio_duration_ms} />
 
       {report.script_diff && <ScriptDiffSection scriptDiff={report.script_diff} />}
+
+      <HomeButton />
     </div>
+  );
+}
+
+function HomeButton() {
+  const navigate = useNavigate();
+  return (
+    <button type="button" className="home-button" onClick={() => navigate("/")}>
+      새 발표 분석하기
+    </button>
   );
 }
 
@@ -144,6 +155,7 @@ function StatusScreen({ title, message }: { title: string; message: string }) {
         <h2>{title}</h2>
         <p>{message}</p>
       </div>
+      <HomeButton />
     </div>
   );
 }

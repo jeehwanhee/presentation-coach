@@ -21,7 +21,11 @@ export function CreateScreen() {
   return (
     <div className="app-content">
       <div className="hero">
-        <h1 className="hero-brand">리허설 코치</h1>
+        <h1 className="hero-brand">
+          PTPT
+          <br />
+          <span className="hero-brand-sub">- Presentation Personal Training</span>
+        </h1>
         <p className="hero-lead">발표 리허설을 시작해볼까요?</p>
         <p className="hero-desc">
           슬라이드와 발표 음성을 올리면, 슬라이드 주장이 실제 발화에서 뒷받침됐는지부터 말하기

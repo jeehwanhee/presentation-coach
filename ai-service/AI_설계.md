@@ -1,6 +1,6 @@
 # AI 서비스 설계 (ai-service)
 
-> 발표 리허설 코치 · AI 파트(STT·음성분석·LLM 정합검사) 설계 기록.
+> PTPT · AI 파트(STT·음성분석·LLM 정합검사) 설계 기록.
 > Spring↔Python 계약(JSON 필드/enum)은 [`docs/API_명세서.md`](../docs/API_명세서.md) 참고. 여기는 그 계약을 채우는 내부 구현 설계.
 > 코드 뼈대는 이미 있음: `app/schemas/`(계약 pydantic화), `app/{parsing,stt,audio,llm}/`(스텁), `app/pipeline/run_analysis.py`(오케스트레이션), `app/clients/`(S3/SQS, 스텁), `scripts/test_clova_upload.py`(STT 실측 테스트 스크립트).
 

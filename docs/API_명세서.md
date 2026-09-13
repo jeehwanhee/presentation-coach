@@ -1,4 +1,4 @@
-# 발표 리허설 코치 — API 명세서
+# PTPT — API 명세서
 
 > 원티드 AI Championship 2026 · Spring(백엔드) ↔ Python(AI 워커) 개발 계약
 > 필드명·enum을 바꾸면 반드시 이 문서부터 고칠 것.

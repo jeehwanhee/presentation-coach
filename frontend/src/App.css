@@ -65,7 +65,8 @@
   font-weight: 800;
   font-size: clamp(34px, 6vw, 52px);
   letter-spacing: -0.8px;
-  margin: 0;
+  line-height: 1.05;
+  margin: 0 0 14px;
   background: linear-gradient(120deg, var(--logo-purple), var(--logo-blue), var(--logo-purple));
   background-size: 220% auto;
   -webkit-background-clip: text;
@@ -73,6 +74,15 @@
   color: transparent;
   filter: drop-shadow(0 6px 22px rgba(134, 59, 255, 0.3));
   animation: hero-brand-shimmer 5s ease-in-out infinite;
+}
+
+.hero-brand-sub {
+  display: inline-block;
+  margin-top: -22px;
+  font-size: clamp(17px, 5.3vw, 27px);
+  font-weight: 600;
+  letter-spacing: -0.2px;
+  white-space: nowrap;
 }
 
 @keyframes hero-brand-shimmer {
@@ -374,6 +384,27 @@
   opacity: 0.4;
   cursor: not-allowed;
   box-shadow: none;
+}
+
+.home-button {
+  align-self: center;
+  font-family: var(--heading);
+  font-weight: 600;
+  font-size: 14px;
+  padding: 10px 20px;
+  margin-top: 8px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-h);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.home-button:hover {
+  border-color: var(--accent-border);
+  background: var(--accent-bg);
+  color: var(--accent);
 }
 
 /* STEP 2 업로드 — PPT/오디오 두 슬롯을 카드 하나로 묶음 */
@@ -781,6 +812,32 @@
 
 .share-url::-webkit-scrollbar {
   display: none; /* Chrome/Safari/Edge */
+}
+
+.notice-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.notice-list li {
+  display: flex;
+  gap: 6px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+.notice-dot {
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  margin-top: 6px;
+  border-radius: 50%;
+  background: var(--accent);
 }
 
 .report-section {
