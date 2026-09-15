@@ -31,6 +31,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import re
 
 from dataclasses import dataclass
 
@@ -372,7 +373,20 @@ def _resolve_segment_ms(
     return seg.start_ms, seg.end_ms
 
 
+# script_diff no-op 방어 필터용 — 쉼표/마침표 등 STT가 억양·침묵을 보고
+# 기계적으로 삽입/생략하는 문장부호. 실제 발화 차이가 아니므로 비교에서 뺀다
+# (2026-09-15, 프롬프트에도 명시했지만 LLM이 가끔 놓쳐서 코드로도 한 번 더 막음).
+_PUNCT_RE = re.compile(r"[,.!?~…·\"'“”‘’]")
+
 _FALLBACK_CLAIM_MAX_LEN = 80
+
+
+def _normalize_for_noop_check(text: str) -> str:
+    """문장부호·공백 차이만 있는 script_diff deviation을 no-op으로 판정하기
+    위한 정규화. 예: "침묵 구간"과 "침묵, 구간"은 쉼표 하나 차이지만 등장하는
+    단어와 순서가 완전히 같으므로 같은 문장으로 취급해야 한다."""
+    text = _PUNCT_RE.sub("", text)
+    return re.sub(r"\s+", " ", text).strip()
 
 
 def _fallback_claim(slide_text: str) -> str:
@@ -508,9 +522,16 @@ def _to_result(
             # 사례 발견(원본 JSON 바이트 비교로 확인, 공백/자모분리 등 숨은 차이
             # 없음). 실제 차이가 없는 no-op deviation은 어느 모델을 쓰든 다시
             # 나올 수 있어서, 프롬프트만 믿지 않고 여기서도 방어적으로 걸러낸다.
-            if d.script_text.strip() == d.spoken_text.strip():
+            # 2026-09-15 확장: 쉼표 등 문장부호만 다른 경우도 실측(r/55, "침묵
+            # 구간" vs "침묵, 구간")에서 여전히 "변경"으로 잡히는 걸 확인 —
+            # 프롬프트에 문장부호 무시 지침을 넣어도 LLM이 매번 지키진 않으므로
+            # 문장부호/공백을 지운 뒤 비교(_normalize_for_noop_check)해서 실제
+            # 단어·어순 차이가 없으면 같은 이유로 버린다.
+            if _normalize_for_noop_check(d.script_text) == _normalize_for_noop_check(
+                d.spoken_text
+            ):
                 logger.warning(
-                    "script_diff: script_text==spoken_text인 no-op deviation 버림: %r", d
+                    "script_diff: 문장부호/공백 차이뿐인 no-op deviation 버림: %r", d
                 )
                 continue
             resolved = _resolve_segment_ms(segments, d.segment_index)
