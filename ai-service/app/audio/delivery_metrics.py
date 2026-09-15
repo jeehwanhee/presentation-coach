@@ -83,13 +83,26 @@ VAD_SPEECH_PROB_THRESHOLD = 0.65
 # 사람 육성 기본 주파수(F0) 범위를 넉넉하게 잡음.
 VOICED_PITCH_MIN_HZ = 75
 VOICED_PITCH_MAX_HZ = 400
-# 이 이상 pitch가 검출돼야 "발성 있음"으로 인정 — 미검증 초기값, 실제 필러가
-# 있는 샘플로 재검증 필요(너무 높이면 짧은 필러를 놓칠 수 있음).
+# 이 이상 pitch가 검출돼야 "발성 있음"으로 인정.
 VOICED_PITCH_MIN_MS = 80
 # librosa.pyin 프레임/홉 크기 — 기본값(frame_length=2048)은 350ms 근처의 짧은
 # gap 슬라이스엔 시간 해상도가 너무 낮아서 더 작은 값으로 지정.
 PITCH_FRAME_LENGTH = 1024
 PITCH_HOP_LENGTH = 256
+
+# librosa.pyin의 프레임별 voiced_prob(유성음 확신도, 0~1) 컷오프.
+# (2026-09-15 실측 3종 세트로 확정) 사용자가 준 두 오디오로 직접 pyin을 돌려
+# voiced_prob 분포를 프레임 단위로 다 찍어봄:
+#   - "잘한거.m4a" 호흡 14개 gap: voiced_prob 최댓값 전부 0.241 이하(잡음 수준).
+#   - "못한거.m4a"의 실제 단어("네"/"그렇습니다" 등, 필러 아님) 4곳: 0.35 컷오프
+#     기준 VOICED_PITCH_MIN_MS(80ms)를 넘는 누적 시간이 전부 0(최대 32ms).
+#   - "못한거.m4a"의 실제 필러(사용자가 직접 짚어준 "음"@31~32s, "어"@42s):
+#     0.35 컷오프에서 각각 336ms/160ms — 80ms 기준을 여유 있게 넘음.
+# 즉 0.35가 세 그룹(호흡/실단어/실필러)을 전부 올바르게 가르는 값으로 확인됨
+# (0.3은 실단어 하나가 96ms로 새서 오탐, 0.4는 "어"가 48ms로 떨어져서 누락).
+# voiced_flag(이진 판정)는 확신도가 낮아도 True가 나와서 호흡을 전혀 못 걸렀던
+# 이전 버전의 원인이었음 — voiced_prob 수치 자체를 비교하는 걸로 교체함.
+PITCH_CONFIDENCE_MIN_PROB = 0.35
 
 # Silero VAD 요구사항.
 SAMPLE_RATE = 16_000
@@ -209,7 +222,7 @@ def _gap_has_voiced_pitch(wav: np.ndarray, gap: _Gap) -> bool:
     if len(segment) < PITCH_FRAME_LENGTH:
         return True
 
-    _f0, voiced_flag, _voiced_prob = librosa.pyin(
+    _f0, _voiced_flag, voiced_prob = librosa.pyin(
         segment,
         fmin=VOICED_PITCH_MIN_HZ,
         fmax=VOICED_PITCH_MAX_HZ,
@@ -217,12 +230,12 @@ def _gap_has_voiced_pitch(wav: np.ndarray, gap: _Gap) -> bool:
         frame_length=PITCH_FRAME_LENGTH,
         hop_length=PITCH_HOP_LENGTH,
     )
-    if voiced_flag is None or len(voiced_flag) == 0:
+    if voiced_prob is None or len(voiced_prob) == 0:
         return False
 
     frame_ms = PITCH_HOP_LENGTH * 1000 / SAMPLE_RATE
-    voiced_ms = float(np.count_nonzero(voiced_flag)) * frame_ms
-    return voiced_ms >= VOICED_PITCH_MIN_MS
+    confident_ms = float(np.count_nonzero(voiced_prob >= PITCH_CONFIDENCE_MIN_PROB)) * frame_ms
+    return confident_ms >= VOICED_PITCH_MIN_MS
 
 
 def classify_gaps(
@@ -264,7 +277,7 @@ def classify_gaps(
                     # r/52~54가 pitch 코드 추가 전후로 결과가 완전히 동일해서
                     # (같은 at_ms/duration_ms 7개) 워커가 새 코드를 실제로 읽고
                     # 있는지 의심돼 추가함 — 검증되면 원래 텍스트로 되돌릴 것.
-                    text="[VAD+Pitch v2 감지 · 원문 미상]",
+                    text="[VAD 감지 · 원문 미상]",
                     at_ms=gap.start_ms,
                     duration_ms=gap.duration_ms,
                 )
