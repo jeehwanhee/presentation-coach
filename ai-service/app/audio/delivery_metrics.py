@@ -33,8 +33,9 @@ from app.stt.clova_client import TranscriptResult, WordTiming
 
 # 이 값 미만인 단어-간 간격은 정상적인 조음 간격으로 보고 VAD 없이 침묵으로만 집계.
 # 실측 데이터 기준 자연스러운 간격은 0~150ms, 필러 의심 구간은 500ms 이상이었음
-# (AI_설계.md §2-1) — 200~300ms 중간값으로 시작.
-GAP_CANDIDATE_THRESHOLD_MS = 250
+# (AI_설계.md §2-1) — 200~300ms 중간값으로 시작했으나, 2026-09-15 실배포 리포트에서
+# 채움말이 비정상적으로 많이(19회) 잡히는 과탐이 확인되어 350ms로 상향.
+GAP_CANDIDATE_THRESHOLD_MS = 350
 
 # 이 값 이상의 침묵 구간(VAD로 "목소리 없음" 확인된 gap)은 long_pauses에 별도 기록.
 LONG_PAUSE_THRESHOLD_MS = 3000
@@ -44,8 +45,10 @@ LONG_PAUSE_THRESHOLD_MS = 3000
 VAD_SLICE_PADDING_MS = 100
 
 # 슬라이스 안에서 이만큼 이상 음성이 감지되어야 "목소리 있음"으로 확정.
-# 너무 낮으면 순간적인 잡음/숨소리를 필러로 오탐할 수 있음.
-VAD_MIN_SPEECH_MS = 60
+# 너무 낮으면 순간적인 잡음/숨소리를 필러로 오탐할 수 있음. 기존 60ms는 VAD_SLICE_
+# PADDING_MS(100ms)로 앞뒤 단어의 말꼬리/날숨이 슬라이스에 섞여 들어왔을 때도 쉽게
+# 넘는 값이라 과탐 원인으로 의심됨 — 2026-09-15 120ms로 상향.
+VAD_MIN_SPEECH_MS = 120
 
 # Silero VAD 요구사항.
 SAMPLE_RATE = 16_000

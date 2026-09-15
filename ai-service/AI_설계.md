@@ -73,22 +73,22 @@ STT가 텍스트에서 완전히 지워버리는 순수 발성이라(§1.1), 텍
 
 ## 3. LLM
 
-**결정: 건국대 API Gateway(Mindlogic, factchat-cloud.mindlogic.ai) 사용. 구체적 모델은 개발 중 실데이터로 검증하며 확정.**
+**결정: 건국대 API Gateway(Mindlogic, factchat-cloud.mindlogic.ai) 사용. 구체 모델은 `gemini-3.7-flash`로 확정(2026-09-15, `.env`의 `LLM_GATEWAY_MODEL` 및 `gateway_client.py`의 `DEFAULT_MODEL` 폴백값 동일하게 반영).**
 
 - OpenAI Chat Completions 포맷과 호환(`/v1/gateway/chat/completions/`), 기존 OpenAI SDK에 base_url만 바꿔서 사용 가능. `response_format`(json_schema, strict) 지원 확인 완료 — 리포트 스키마(2.3.1절)를 그대로 강제 출력 가능. 모델을 나중에 바꿔도 이 방식은 그대로 유지됨(같은 게이트웨이, 같은 스키마).
-- **모델 선정 기준: 비용(크레딧 소모) 최우선, 단 정합성 판정처럼 reasoning이 필요한 작업의 품질도 같이 봐야 해서 실제 개발 중 확정.** 일단 제일 저렴한 모델로 시작 → 실데이터로 판정 정확도 테스트 → 부족하면 한 단계 위 모델로 올리는 방식. §2 그룹B 채움말 판단도 같은 호출에 곁들일지, 별도 호출로 뺄지는 프롬프트/비용 보면서 결정.
+- **모델 선정 기준: 비용(크레딧 소모) 최우선, 단 정합성 판정처럼 reasoning이 필요한 작업의 품질도 같이 봐야 해서 실제 개발 중 확정.** 일단 제일 저렴한 모델(`gemini-3.5-flash-lite`)로 시작 → 실데이터로 판정 정확도 테스트 → **이 방식대로 한 단계 위인 `gemini-3.7-flash`로 전환, 최종 확정(2026-09-15, `.env` 기준 확인 — 전환 사유 상세 기록은 없음).** §2 그룹B 채움말 판단도 같은 호출에 그대로 곁들임(별도 호출로 안 뺌).
 - 동일 테스트 요청 기준 크레딧 소모 비교(참고용, 실제 태스크 기준 재검증 필요):
 
 | 모델 | 크레딧 소모 |
 |---|---|
-| gemini-3.5-flash-lite | 0.11 (최저) |
-| gemini-3.7-flash | 0.13 |
+| gemini-3.5-flash-lite | 0.11 (최저, 1차 후보였으나 이후 상위 모델로 전환됨) |
+| **gemini-3.7-flash** | **0.13 (최종 확정)** |
 | gemini-3.8-flash | 0.14 |
 | gemini-3.6-flash | 0.17 |
 | gemini-3.5-flash | 0.30 |
 
-- 32개 모델 중 Claude(haiku/opus), OpenAI(gpt-5.6 계열) 등도 후보에 포함 — flash-lite 품질이 부족하면 이쪽으로 전환 검토.
-- 월 3000크레딧 할당(매월 1일 리셋). flash-lite 기준 토큰당 약 0.0013크레딧 → 발표 1건(추정 3000~4500토큰)당 대략 4~6크레딧, 월 500건 이상 처리 가능 추정(단, 더 비싼 모델로 갈 경우 이 추정치는 낮아짐).
+- 32개 모델 중 Claude(haiku/opus), OpenAI(gpt-5.6 계열) 등도 후보에 포함 — gemini-3.7-flash로도 부족하면 이쪽으로 추가 전환 검토.
+- 월 3000크레딧 할당(매월 1일 리셋). gemini-3.7-flash 기준 토큰당 약 0.0015크레딧(0.13/0.11 비례 추정, 재검증 필요) → 발표 1건(추정 3000~4500토큰)당 대략 4.5~7크레딧, 월 400건 내외 처리 가능 추정.
 - **미확인**: EC2(운영 서버)에서 접근 가능한지, 해커톤 같은 외부 대회 프로젝트에 사용해도 되는 약관인지 — 배포 전 확인 필요.
 - 기존에 검토했던 Gemini 공개 무료 티어/OpenAI 유료/Claude/자체호스팅 오픈소스 방안은 이 게이트웨이로 대체.
 
@@ -166,7 +166,7 @@ STT가 텍스트에서 완전히 지워버리는 순수 발성이라(§1.1), 텍
 - [x] `app/parsing/pptx_parser.py` 구현 (§4, 2026-09-07)
 - [x] `app/pipeline/run_analysis.py` 최종 조립 — 4단계를 ThreadPoolExecutor로 2쌍씩 병렬 실행, 그룹A+그룹B 필러 병합 (§4, 2026-09-07)
 - [x] **전체 파이프라인 실측 종단 검증 완료 (§4.1, 2026-09-07)** — `test01.m4a` + placeholder pptx로 Clova→VAD∥LLM 전체를 실제로 5.3초 만에 성공 실행, transcript/필러/정합성 판정 모두 실제 내용과 정확히 일치 확인
-- [ ] LLM 최종 모델 선정 — 게이트웨이는 확정, 구체 모델은 개발 중 실데이터 테스트로 확정 예정(§3.1에서 flash-lite로 1차 실호출 성공은 확인)
+- [x] **LLM 최종 모델 선정 완료 (2026-09-15)** — 게이트웨이(Mindlogic)는 그대로, 구체 모델은 `gemini-3.5-flash-lite`에서 `gemini-3.7-flash`로 전환해 최종 확정. `.env`의 `LLM_GATEWAY_MODEL`과 `gateway_client.py`의 `DEFAULT_MODEL` 폴백값에 반영함(§3).
 - [ ] EC2 스펙 확인 — LLM을 오픈소스로 자체호스팅할지 여부를 가를 요인이라 여전히 필요. STT는 Clova로 가면서 이 서버의 컴퓨트 부담에서는 빠짐.
 - [x] **백엔드 배포 완료 확인 (2026-09-07, 깃허브 `jeehwanhee/presentation-coach` 클론해서 확인)** — `.github/workflows/deploy.yml`로 EC2(`54.116.144.17`)에 SSH 자동배포(`systemctl restart coach`), 단 **backend만** 대상이고 ai-service 배포 파이프라인은 아직 레포에 없음(별도로 지환희와 상의 필요). `docs/aws.md`에 §3.2 콜백 URL 추가 확인: `http://54.116.144.17:8080/api/internal/analysis-results` — CloudFront 아직 없이 EC2 IP 직결. `.env.example`의 `CALLBACK_URL`에 반영함.
 - [x] **AWS 자격증명 방식 확인** — backend의 `S3Config.java`/`SqsConfig.java`가 `DefaultCredentialsProvider.create()` 사용(자격증명 하드코딩 없음, EC2 인스턴스 IAM role 자동 사용) → ai-service도 같은 EC2에 배포하면 `boto3` 기본 자격증명 체인으로 동일하게 맞추면 됨. 로컬 개발 중엔 `coach-ai` IAM 유저의 access key를 `aws configure`로 별도 설정 필요.
