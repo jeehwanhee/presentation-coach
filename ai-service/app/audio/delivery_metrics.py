@@ -65,10 +65,31 @@ VAD_MIN_SPEECH_MS = 120
 # Silero VAD가 "음성"이라고 판단하는 프레임 확률 컷오프(get_speech_timestamps의
 # threshold 파라미터, 기본값 0.5). 기본값을 쓰면 호흡처럼 발화보다 확신도가 낮은
 # 소리도 "음성"으로 잡힐 수 있어 보수적으로 올림(2026-09-15, id=50 리포트의 필러
-# 14건이 전부 호흡으로 확인된 뒤 추가) — 0.65는 첫 시도값, 실제 오디오로 재검증
-# 필요. 너무 높이면 진짜 "음"/"어" 발화까지 놓칠 수 있으니 그룹A 정탐 샘플로도
-# 같이 확인해야 함(§ 남은 이슈).
+# 14건이 전부 호흡으로 확인된 뒤 추가) — 0.65는 첫 시도값.
+# (2026-09-15 추가 확인) VAD_SLICE_PADDING_MS 40ms + 이 값 0.65 조합으로 id=52
+# 재실행 결과 14건 → 7건으로 절반은 줄었으나(효과는 있었음), 남은 7건도 사용자가
+# 직접 들어보고 전부 호흡으로 확인 — Silero의 "음성 확률"만으로는 호흡과 유성
+# 필러("음"/"어")를 완전히 못 가른다는 게 재확인됨. 그래서 아래 pitch 기반 2차
+# 검사(_gap_has_voiced_pitch)를 추가하고, 이 값 자체는 더 안 올림(계속 올리면
+# 진짜 필러까지 놓칠 위험만 커지고 근본 해결이 안 됨).
 VAD_SPEECH_PROB_THRESHOLD = 0.65
+
+# --- 유성음(pitch) 2차 검사 (2026-09-15 추가) ---
+# 호흡은 에너지가 있어도 배음 구조(pitch)가 없는 노이즈인 반면, "음"/"어" 같은
+# 유성 필러는 모음처럼 일정 구간 이상 안정된 pitch를 가진다. Silero VAD 확률
+# 임계값만 올려서는(위 VAD_SPEECH_PROB_THRESHOLD 이력 참고) 호흡을 못 걸러내는
+# 게 실측(id=50: 14/14 호흡, id=52: 잔여 7/7도 호흡)으로 두 번 확인돼서, gap
+# 구간에 이 정도 이상 안정적인 pitch가 잡혀야만 필러로 확정하도록 검사를 더한다.
+# 사람 육성 기본 주파수(F0) 범위를 넉넉하게 잡음.
+VOICED_PITCH_MIN_HZ = 75
+VOICED_PITCH_MAX_HZ = 400
+# 이 이상 pitch가 검출돼야 "발성 있음"으로 인정 — 미검증 초기값, 실제 필러가
+# 있는 샘플로 재검증 필요(너무 높이면 짧은 필러를 놓칠 수 있음).
+VOICED_PITCH_MIN_MS = 80
+# librosa.pyin 프레임/홉 크기 — 기본값(frame_length=2048)은 350ms 근처의 짧은
+# gap 슬라이스엔 시간 해상도가 너무 낮아서 더 작은 값으로 지정.
+PITCH_FRAME_LENGTH = 1024
+PITCH_HOP_LENGTH = 256
 
 # Silero VAD 요구사항.
 SAMPLE_RATE = 16_000
@@ -167,6 +188,43 @@ def _is_voiced(wav: np.ndarray, gap: _Gap) -> bool:
     return total_speech_ms >= VAD_MIN_SPEECH_MS
 
 
+def _gap_has_voiced_pitch(wav: np.ndarray, gap: _Gap) -> bool:
+    """gap 구간(패딩 없이 순수 gap만)에 안정적인 pitch(유성음)가 있는지 확인한다.
+
+    _is_voiced()는 패딩까지 포함한 슬라이스에 Silero 기준 "음성 에너지"가
+    있는지만 보므로 호흡도 자주 통과한다(2026-09-15 실측, 위 상수 이력 참고).
+    이 함수는 그 2차 검사로, gap 구간 자체에 사람 목소리다운 pitch가 실제로
+    존재하는지 librosa.pyin으로 확인한다 — 호흡은 배음 구조가 없어 pitch가
+    거의 안 잡히고, "음"/"어" 같은 유성 필러는 모음처럼 pitch가 잡힌다는
+    가정.
+    """
+    import librosa
+
+    start_sample = max(0, int(gap.start_ms * SAMPLE_RATE / 1000))
+    end_sample = min(len(wav), int(gap.end_ms * SAMPLE_RATE / 1000))
+    segment = wav[start_sample:end_sample]
+
+    # librosa.pyin은 frame_length보다 짧은 입력에 에러를 내므로, 너무 짧으면
+    # pitch 판단을 못 하는 셈 — 이 경우 보수적으로 "필러 후보 유지"(True)로 둔다.
+    if len(segment) < PITCH_FRAME_LENGTH:
+        return True
+
+    _f0, voiced_flag, _voiced_prob = librosa.pyin(
+        segment,
+        fmin=VOICED_PITCH_MIN_HZ,
+        fmax=VOICED_PITCH_MAX_HZ,
+        sr=SAMPLE_RATE,
+        frame_length=PITCH_FRAME_LENGTH,
+        hop_length=PITCH_HOP_LENGTH,
+    )
+    if voiced_flag is None or len(voiced_flag) == 0:
+        return False
+
+    frame_ms = PITCH_HOP_LENGTH * 1000 / SAMPLE_RATE
+    voiced_ms = float(np.count_nonzero(voiced_flag)) * frame_ms
+    return voiced_ms >= VOICED_PITCH_MIN_MS
+
+
 def classify_gaps(
     wav: np.ndarray, gaps: list[_Gap]
 ) -> tuple[list[Filler], int, list[LongPause]]:
@@ -190,7 +248,10 @@ def classify_gaps(
             silence_total_ms += gap.duration_ms
             continue
 
-        if _is_voiced(wav, gap):
+        # Silero "음성 에너지 있음"(_is_voiced) + gap 자체에 "pitch 있음"
+        # (_gap_has_voiced_pitch) 둘 다 만족해야 필러로 확정 — 전자만으로는
+        # 호흡도 통과하는 게 실측으로 확인돼서(2026-09-15) 2차 검사를 추가함.
+        if _is_voiced(wav, gap) and _gap_has_voiced_pitch(wav, gap):
             # CLOVA가 텍스트로 남기지 않은 발성 = 그룹A 필러 후보.
             # 정확히 "음"인지 "어"인지는 CLOVA 원문이 없어 구분할 수 없으므로
             # 기타(ETC)로 잡고 text에 표시를 남긴다.
