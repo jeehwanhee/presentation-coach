@@ -35,20 +35,40 @@ from app.stt.clova_client import TranscriptResult, WordTiming
 # 실측 데이터 기준 자연스러운 간격은 0~150ms, 필러 의심 구간은 500ms 이상이었음
 # (AI_설계.md §2-1) — 200~300ms 중간값으로 시작했으나, 2026-09-15 실배포 리포트에서
 # 채움말이 비정상적으로 많이(19회) 잡히는 과탐이 확인되어 350ms로 상향.
+# (2026-09-15 추가 확인) 이후 실배포 리포트(id=50, 대본 일치율 100%인 "잘한" 버전)에서
+# 여전히 14건이 잡혔는데, 14건 전부 gap 길이가 370~650ms로 이미 350ms를 넘는 값들이라
+# 이 임계값을 더 올려도 구조적으로 걸러지지 않음 — 사용자가 직접 확인한 결과 14건
+# 전부 호흡이었음(실제 "음"/"어" 발화 0건). 즉 과탐의 원인은 이 임계값이 아니라
+# VAD "목소리 있음" 판정 쪽(VAD_SLICE_PADDING_MS/VAD_SPEECH_PROB_THRESHOLD)이라는
+# 게 실측으로 확정됨 — 이 값을 추가로 올리는 시도는 하지 않음.
 GAP_CANDIDATE_THRESHOLD_MS = 350
 
 # 이 값 이상의 침묵 구간(VAD로 "목소리 없음" 확인된 gap)은 long_pauses에 별도 기록.
 LONG_PAUSE_THRESHOLD_MS = 3000
 
 # VAD 슬라이스에 앞뒤로 붙이는 패딩(ms). gap 경계를 딱 맞춰 자르면 발화 시작/끝
-# 부분이 잘려서 VAD가 놓칠 수 있어 여유를 둔다(§2-2).
-VAD_SLICE_PADDING_MS = 100
+# 부분이 잘려서 VAD가 놓칠 수 있어 여유를 둔다(§2-2). 기존 100ms는 인접 단어의
+# 말꼬리 음절까지 슬라이스에 끌어들여 speech duration을 부풀리는 것으로 의심됨
+# (2026-09-15, id=50 리포트에서 필러 14건 전부 호흡으로 확인된 뒤 낮춤) — 단어
+# 경계를 완전히 놓치지 않을 최소한만 남기고 40ms로 축소. 미검증 — 재실행 필요.
+VAD_SLICE_PADDING_MS = 40
 
 # 슬라이스 안에서 이만큼 이상 음성이 감지되어야 "목소리 있음"으로 확정.
 # 너무 낮으면 순간적인 잡음/숨소리를 필러로 오탐할 수 있음. 기존 60ms는 VAD_SLICE_
 # PADDING_MS(100ms)로 앞뒤 단어의 말꼬리/날숨이 슬라이스에 섞여 들어왔을 때도 쉽게
 # 넘는 값이라 과탐 원인으로 의심됨 — 2026-09-15 120ms로 상향.
+# (2026-09-15 추가 확인) 그래도 여전히 호흡을 필러로 오탐(14건/14건) — duration
+# 기준만으로는 호흡과 짧은 발화를 못 가른다고 보고, VAD_SPEECH_PROB_THRESHOLD를
+# 별도로 추가함(아래). 이 값 자체는 일단 유지.
 VAD_MIN_SPEECH_MS = 120
+
+# Silero VAD가 "음성"이라고 판단하는 프레임 확률 컷오프(get_speech_timestamps의
+# threshold 파라미터, 기본값 0.5). 기본값을 쓰면 호흡처럼 발화보다 확신도가 낮은
+# 소리도 "음성"으로 잡힐 수 있어 보수적으로 올림(2026-09-15, id=50 리포트의 필러
+# 14건이 전부 호흡으로 확인된 뒤 추가) — 0.65는 첫 시도값, 실제 오디오로 재검증
+# 필요. 너무 높이면 진짜 "음"/"어" 발화까지 놓칠 수 있으니 그룹A 정탐 샘플로도
+# 같이 확인해야 함(§ 남은 이슈).
+VAD_SPEECH_PROB_THRESHOLD = 0.65
 
 # Silero VAD 요구사항.
 SAMPLE_RATE = 16_000
@@ -139,6 +159,7 @@ def _is_voiced(wav: np.ndarray, gap: _Gap) -> bool:
         slice_tensor,
         _get_vad_model(),
         sampling_rate=SAMPLE_RATE,
+        threshold=VAD_SPEECH_PROB_THRESHOLD,
         return_seconds=False,
     )
     total_speech_samples = sum(span["end"] - span["start"] for span in speech_spans)
