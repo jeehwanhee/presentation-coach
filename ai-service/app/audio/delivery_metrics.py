@@ -259,7 +259,12 @@ def classify_gaps(
             fillers.append(
                 Filler(
                     type=FillerType.ETC,
-                    text="[VAD 감지 · 원문 미상]",
+                    # (2026-09-15 임시) 워커가 실제로 이 코드(pitch 2차 검사 포함)로
+                    # 돌고 있는지 리포트에서 바로 눈으로 확인하기 위한 카나리 표시.
+                    # r/52~54가 pitch 코드 추가 전후로 결과가 완전히 동일해서
+                    # (같은 at_ms/duration_ms 7개) 워커가 새 코드를 실제로 읽고
+                    # 있는지 의심돼 추가함 — 검증되면 원래 텍스트로 되돌릴 것.
+                    text="[VAD+Pitch v2 감지 · 원문 미상]",
                     at_ms=gap.start_ms,
                     duration_ms=gap.duration_ms,
                 )
