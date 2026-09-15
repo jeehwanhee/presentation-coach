@@ -71,11 +71,23 @@ GROUP_B_EXACT: dict[str, FillerType] = {
     "좀": FillerType.JOM,
     "막": FillerType.MAK,
     "그냥": FillerType.GEUNYANG,
+    # "네"는 실제 답변("예")으로도, 의미 없이 습관적으로 붙이는 채움말("네, 그래서...",
+    # "네네..." 반복)로도 쓰인다(2026-09-15 사용자 요청). FillerType.NE 전용 값
+    # 추가함(report.py/API_명세서.md §1 enum 표도 같이 갱신 — 동결된 공동 계약이라
+    # 프론트/백엔드에 영향 가능, 커밋 전 팀에 공유 권장). 필러인지 문맥 판단은 LLM 몫.
+    "네": FillerType.NE,
 }
 # "같다"는 어미가 활용돼서("같아요"/"같은"/"같습니다") 원형 그대로 나오는 경우가
 # 드물어 어간 접두 매칭으로 후보를 넓게 잡는다. 오탐(예: "같이") 걸러내는 건 LLM 몫.
 GATDA_PREFIX = "같"
 GATDA_TYPE = FillerType.GATDA
+# "그렇습니다"/"그렇죠"/"그러네요" 등도 마찬가지로 어미 활용이 다양해서 어간
+# 접두("그렇"/"그러") 매칭으로 후보를 넓게 잡는다(2026-09-15 사용자 요청 —
+# FillerType.GEUROTA("그렇다") 전용 값 추가, GATDA와 동일한 패턴). "그렇게"
+# (그런 방식으로, 정상적인 부사)처럼 필러가 아닌 경우도 이 접두에 걸리므로
+# 문맥 판단은 반드시 LLM에 맡긴다.
+GEUROH_PREFIXES = ("그렇", "그러")
+GEUROH_TYPE = FillerType.GEUROTA
 
 # 후보 단어의 문맥 판단을 돕기 위해 앞뒤로 같이 보여줄 단어 수.
 CONTEXT_WINDOW = 4
@@ -128,6 +140,8 @@ def find_group_b_candidates(words: list[WordTiming]) -> list[GroupBCandidate]:
             candidates.append(GroupBCandidate(i, w, GROUP_B_EXACT[text]))
         elif text.startswith(GATDA_PREFIX):
             candidates.append(GroupBCandidate(i, w, GATDA_TYPE))
+        elif text.startswith(GEUROH_PREFIXES):
+            candidates.append(GroupBCandidate(i, w, GEUROH_TYPE))
     return candidates
 
 
@@ -257,6 +271,12 @@ _SYSTEM_PROMPT = """\
      "저"=1인칭 대명사, "그 사람이 말한"의 "그"=지시대명사, "3배 좀 넘게"의
      "좀"=수량 부사, "다른 것 같습니다"의 "같다"=추측 표현이지만 문장 의미상
      필요한 서술어).
+   - "네"/"그렇습니다"/"그렇죠"/"그러네요" 등도 같은 기준으로 판단한다: 문장을
+     시작할 때마다("네, 그래서...", "네 근데...") 습관적으로 반복해서 붙이거나
+     실질적인 답변·동의 없이 말버릇으로 쓰인 경우는 필러로 본다. 반대로 질문에
+     대한 실제 답("예/아니오"로서의 네)이거나 직전 내용에 대한 진짜 동의·확인의
+     의미로 한 번 자연스럽게 쓰인 경우, "그렇게"가 "그런 방식으로"라는 뜻의
+     정상적인 부사로 쓰인 경우는 필러가 아니다.
    판단이 애매하면 정상 용법(is_filler=false) 쪽으로 판정한다(과탐 방지).
 
 세그먼트 번호(segment_index)는 항상 입력으로 주어진 범위 안의 정수여야 하고,

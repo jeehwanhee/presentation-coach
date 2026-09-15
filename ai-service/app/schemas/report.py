@@ -26,12 +26,17 @@ class ConsistencyVerdict(str, Enum):
 class FillerType(str, Enum):
     """§1 Enum: filler.type
 
-    2026-09-07 확장 (API_명세서.md §2.3.1 참고) — 탐지 방식이 두 그룹으로 나뉜다:
+    2026-09-07 확장, 2026-09-15 NE/GEUROTA 추가 (API_명세서.md §2.3.1/§1 참고) —
+    탐지 방식이 두 그룹으로 나뉜다:
     - EUM/EO(음/어): STT가 텍스트에서 지워버리는 순수 발성. VAD(Silero VAD)로
       단어 타임스탬프 사이 빈틈을 교차 검증해서 탐지 (app/audio/delivery_metrics.py).
-    - GEU/JEO/MWO/MWONGA/JOM/MAK/GEUNYANG/GATDA(그/저/뭐/뭔가/좀/막/그냥/같다):
-      실제 단어라 STT 텍스트에 항상 남지만, "그 사람이"처럼 필러 아닌 정상
-      용법과 헷갈리기 쉬워서 LLM이 문맥 보고 판단 (app/llm/gateway_client.py).
+    - GEU/JEO/MWO/MWONGA/JOM/MAK/GEUNYANG/GATDA/NE/GEUROTA
+      (그/저/뭐/뭔가/좀/막/그냥/같다/네/그렇다): 실제 단어라 STT 텍스트에 항상
+      남지만, "그 사람이"/"네, 알겠습니다"(실제 답변)처럼 필러 아닌 정상 용법과
+      헷갈리기 쉬워서 LLM이 문맥 보고 판단 (app/llm/gateway_client.py).
+      NE("네")/GEUROTA("그렇다")는 "그렇습니다"/"그렇죠"/"그러네요" 등 어미
+      활용형을 포함(GATDA와 같은 어간 접두 매칭 방식, gateway_client.py의
+      GEUROH_PREFIXES 참고) — 사용자 요청으로 2026-09-15 추가.
     """
 
     EUM = "음"
@@ -44,6 +49,8 @@ class FillerType(str, Enum):
     MAK = "막"
     GEUNYANG = "그냥"
     GATDA = "같다"
+    NE = "네"
+    GEUROTA = "그렇다"
     ETC = "기타"
 
 
