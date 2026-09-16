@@ -102,7 +102,7 @@ export function CreateScreen() {
 
       <ReportPreview />
 
-      <p className="usage-limit-notice">서비스 안정을 위해 하루 최대 10회까지 이용할 수 있어요.</p>
+      <p className="usage-limit-notice">서비스 안정을 위해 하루 최대 10회, 음성은 누적 30분까지 이용할 수 있어요.</p>
     </div>
   );
 }
