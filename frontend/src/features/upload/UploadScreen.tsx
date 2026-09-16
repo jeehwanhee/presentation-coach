@@ -97,7 +97,8 @@ export function UploadScreen() {
       );
       setSlideFile(ppt);
 
-      const audioUrl = tone === "good" ? "/examples/good.m4a" : "/examples/bad.m4a";
+      // 음성 예시는 용량·개인 녹음이라 git엔 안 올리고 서버 파일시스템(EC2)에서만 서빙(WebConfig.java 참고).
+      const audioUrl = `${import.meta.env.VITE_API_BASE_URL}/api/examples/${tone === "good" ? "good" : "bad"}.m4a`;
       const audioName = tone === "good" ? "잘한예시.m4a" : "못한예시.m4a";
       const audio = await fetchAsFile(audioUrl, audioName, "audio/mp4");
       await handleAudioSelect(audio);
