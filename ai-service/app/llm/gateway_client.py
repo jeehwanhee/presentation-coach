@@ -4,8 +4,12 @@ OpenAI Chat Completions 호환 — 기존 OpenAI SDK에 base_url만 교체해서
 response_format(json_schema, strict) 지원 확인됨 — 구조화 출력을 강제한다
 (AI_설계.md §3).
 
-모델은 미확정: gemini-3.5-flash-lite(최저 비용 후보)부터 시작해서 정합성
-판정 정확도를 실데이터로 테스트한 뒤 부족하면 상위 모델로 전환.
+모델: `gemini-3.7-flash`로 확정(2026-09-15 기준 `.env`의 LLM_GATEWAY_MODEL 값
+반영, AI_설계.md §3 참고). 처음엔 최저 비용인 gemini-3.5-flash-lite로 시작해서
+실데이터로 검증하다 한 단계 위인 gemini-3.7-flash로 전환됨 — 애초 계획대로
+"저렴한 모델 → 정확도 테스트 → 부족하면 상위 모델"의 결과. `.env`의
+LLM_GATEWAY_MODEL이 최종 소스이고, 아래 DEFAULT_MODEL은 그 값이 없을 때
+쓰는 폴백이라 동일하게 맞춤.
 
 이 모듈이 LLM 호출 한 번으로 같이 처리하는 것 (AI_설계.md §2/§3, 비용 절감 위해
 정합성 판정과 그룹B 채움말 판단을 한 호출에 묶기로 확정):
@@ -27,6 +31,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import re
 
 from dataclasses import dataclass
 
@@ -51,7 +56,7 @@ from app.stt.clova_client import TranscriptResult, WordTiming
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_MODEL = "gemini-3.5-flash-lite"
+DEFAULT_MODEL = "gemini-3.7-flash"
 DEFAULT_BASE_URL = "https://factchat-cloud.mindlogic.ai/v1/gateway"
 
 # 근거/위치를 못 찾았을 때 LLM이 답하는 sentinel 인덱스.
@@ -67,11 +72,23 @@ GROUP_B_EXACT: dict[str, FillerType] = {
     "좀": FillerType.JOM,
     "막": FillerType.MAK,
     "그냥": FillerType.GEUNYANG,
+    # "네"는 실제 답변("예")으로도, 의미 없이 습관적으로 붙이는 채움말("네, 그래서...",
+    # "네네..." 반복)로도 쓰인다(2026-09-15 사용자 요청). FillerType.NE 전용 값
+    # 추가함(report.py/API_명세서.md §1 enum 표도 같이 갱신 — 동결된 공동 계약이라
+    # 프론트/백엔드에 영향 가능, 커밋 전 팀에 공유 권장). 필러인지 문맥 판단은 LLM 몫.
+    "네": FillerType.NE,
 }
 # "같다"는 어미가 활용돼서("같아요"/"같은"/"같습니다") 원형 그대로 나오는 경우가
 # 드물어 어간 접두 매칭으로 후보를 넓게 잡는다. 오탐(예: "같이") 걸러내는 건 LLM 몫.
 GATDA_PREFIX = "같"
 GATDA_TYPE = FillerType.GATDA
+# "그렇습니다"/"그렇죠"/"그러네요" 등도 마찬가지로 어미 활용이 다양해서 어간
+# 접두("그렇"/"그러") 매칭으로 후보를 넓게 잡는다(2026-09-15 사용자 요청 —
+# FillerType.GEUROTA("그렇다") 전용 값 추가, GATDA와 동일한 패턴). "그렇게"
+# (그런 방식으로, 정상적인 부사)처럼 필러가 아닌 경우도 이 접두에 걸리므로
+# 문맥 판단은 반드시 LLM에 맡긴다.
+GEUROH_PREFIXES = ("그렇", "그러")
+GEUROH_TYPE = FillerType.GEUROTA
 
 # 후보 단어의 문맥 판단을 돕기 위해 앞뒤로 같이 보여줄 단어 수.
 CONTEXT_WINDOW = 4
@@ -124,6 +141,8 @@ def find_group_b_candidates(words: list[WordTiming]) -> list[GroupBCandidate]:
             candidates.append(GroupBCandidate(i, w, GROUP_B_EXACT[text]))
         elif text.startswith(GATDA_PREFIX):
             candidates.append(GroupBCandidate(i, w, GATDA_TYPE))
+        elif text.startswith(GEUROH_PREFIXES):
+            candidates.append(GroupBCandidate(i, w, GEUROH_TYPE))
     return candidates
 
 
@@ -214,11 +233,37 @@ _SYSTEM_PROMPT = """\
    찾으면 그 주장은 NOT_MENTIONED로 판정하면 되고, 주장을 아예 안 만드는 것은
    허용되지 않는다.
 2. off_topic: 슬라이드 주제와 무관한 발화 구간(예: 잡담, 본론과 상관없는 이야기).
-   start/end_segment_index로 구간을 표시.
+   start/end_segment_index로 구간을 표시. **checks에서 슬라이드들을
+   NOT_MENTIONED로 판정했다는 사실 하나만으로 off_topic 판단을 생략하지
+   않는다.** "슬라이드 내용을 언급 안 함"과 "슬라이드 주제와 무관한 얘기를
+   함"은 서로 다른 질문이니 반드시 둘 다 따로 확인할 것 — 발화 내용이 슬라이드
+   주제와 실제로 무관하다면(예: 발표 주제와 전혀 다른 얘기를 처음부터 끝까지
+   했다면) 그 구간(들)을 반드시 off_topic으로도 표시해야 한다. 발화 전체가
+   슬라이드 주제와 무관하다면 전체 세그먼트 범위를 하나의 off_topic 항목으로
+   만들 것 — "전부 무관해서 애매하다"는 이유로 off_topic을 통째로 비워두지
+   않는다.
 3. logic_gaps: 근거 설명 없이 결론으로 건너뛰거나 인과관계가 불명확한 구간.
 4. script_diff: 대본이 주어졌을 때만 채운다(대본이 없으면 반드시 null).
-   대본 문장과 실제 발화가 다른 지점을 생략(대본에 있는데 말 안 함)/추가(대본에
-   없는데 말함)/변경(같은 내용을 다른 표현으로) 중 하나로 분류.
+   대본 문장과 실제 발화를 순서대로 대응시키면서 아래 세 가지 유형을 각각
+   빠짐없이 확인한다.
+   - 생략: 대본에는 있는데 발화에서 아예 말하지 않은 문장/구절.
+   - 추가: **발화에는 있는데 대본 어디에도 없는 문장/구절**(즉흥 부연 설명, 인사말,
+     추가 예시, "그리고 하나 더 말씀드리면" 같은 삽입 문장 등). 대본 문장들 사이나
+     맨 앞/맨 뒤에 대응되는 대본 문장이 전혀 없는 발화 구간이 있는지 반드시 따로
+     훑어보고 빠짐없이 잡아낼 것 — 이 유형은 "다음 대본 문장과 매칭되는지"만 보면
+     건너뛰기 쉬우므로 특히 주의한다. 예: 대본이 "제품을 소개합니다."인데 발화가
+     "제품을 소개합니다. 이건 저희 팀이 2주 동안 준비한 겁니다."라면, 뒤에 덧붙인
+     문장은 대본에 대응 문장이 없으므로 추가로 분류해야 한다.
+   - 변경: 같은 내용을 다른 표현으로 말한 경우(어순 변경, 단어 교체, 구어체 변형 등).
+   한 구간이 여러 유형에 걸쳐 보이면 가장 두드러진 차이 하나로 분류한다. 조사/어미
+   차이 정도의 사소한 구어체 변형만 있는 경우는 deviation으로 만들지 않는다.
+   **쉼표/마침표/느낌표 등 문장부호 차이는 절대 deviation으로 잡지 않는다.**
+   transcript_segments의 쉼표는 화자가 실제로 끊어 말한 게 아니라 음성인식이
+   침묵/억양을 보고 기계적으로 삽입한 것이라 대본의 쉼표 위치와 다를 수 있다 —
+   비교는 문장부호를 무시하고 순수 단어(어절) 나열만 놓고 판단한다. 예를 들어
+   대본 "침묵 구간, 채움말"과 발화 "침묵, 구간, 채움말"은 등장하는 단어와 순서가
+   완전히 같으므로 변경으로 잡지 않는다 — 쉼표 개수/위치가 다르다는 이유만으로는
+   matched_ratio를 깎지도 않는다.
 5. group_b_fillers: 후보 목록으로 주어진 단어들이 실제로 "채움말/군더더기
    표현"으로 쓰였는지 판단한다. 《 》로 표시된 단어가 판단 대상이다.
    - 필러로 볼 것: 의미 없이 말을 잇기 위해 넣은 경우 (예: "그... 그게 그러니까",
@@ -227,6 +272,12 @@ _SYSTEM_PROMPT = """\
      "저"=1인칭 대명사, "그 사람이 말한"의 "그"=지시대명사, "3배 좀 넘게"의
      "좀"=수량 부사, "다른 것 같습니다"의 "같다"=추측 표현이지만 문장 의미상
      필요한 서술어).
+   - "네"/"그렇습니다"/"그렇죠"/"그러네요" 등도 같은 기준으로 판단한다: 문장을
+     시작할 때마다("네, 그래서...", "네 근데...") 습관적으로 반복해서 붙이거나
+     실질적인 답변·동의 없이 말버릇으로 쓰인 경우는 필러로 본다. 반대로 질문에
+     대한 실제 답("예/아니오"로서의 네)이거나 직전 내용에 대한 진짜 동의·확인의
+     의미로 한 번 자연스럽게 쓰인 경우, "그렇게"가 "그런 방식으로"라는 뜻의
+     정상적인 부사로 쓰인 경우는 필러가 아니다.
    판단이 애매하면 정상 용법(is_filler=false) 쪽으로 판정한다(과탐 방지).
 
 세그먼트 번호(segment_index)는 항상 입력으로 주어진 범위 안의 정수여야 하고,
@@ -322,7 +373,20 @@ def _resolve_segment_ms(
     return seg.start_ms, seg.end_ms
 
 
+# script_diff no-op 방어 필터용 — 쉼표/마침표 등 STT가 억양·침묵을 보고
+# 기계적으로 삽입/생략하는 문장부호. 실제 발화 차이가 아니므로 비교에서 뺀다
+# (2026-09-15, 프롬프트에도 명시했지만 LLM이 가끔 놓쳐서 코드로도 한 번 더 막음).
+_PUNCT_RE = re.compile(r"[,.!?~…·\"'“”‘’]")
+
 _FALLBACK_CLAIM_MAX_LEN = 80
+
+
+def _normalize_for_noop_check(text: str) -> str:
+    """문장부호·공백 차이만 있는 script_diff deviation을 no-op으로 판정하기
+    위한 정규화. 예: "침묵 구간"과 "침묵, 구간"은 쉼표 하나 차이지만 등장하는
+    단어와 순서가 완전히 같으므로 같은 문장으로 취급해야 한다."""
+    text = _PUNCT_RE.sub("", text)
+    return re.sub(r"\s+", " ", text).strip()
 
 
 def _fallback_claim(slide_text: str) -> str:
@@ -458,9 +522,16 @@ def _to_result(
             # 사례 발견(원본 JSON 바이트 비교로 확인, 공백/자모분리 등 숨은 차이
             # 없음). 실제 차이가 없는 no-op deviation은 어느 모델을 쓰든 다시
             # 나올 수 있어서, 프롬프트만 믿지 않고 여기서도 방어적으로 걸러낸다.
-            if d.script_text.strip() == d.spoken_text.strip():
+            # 2026-09-15 확장: 쉼표 등 문장부호만 다른 경우도 실측(r/55, "침묵
+            # 구간" vs "침묵, 구간")에서 여전히 "변경"으로 잡히는 걸 확인 —
+            # 프롬프트에 문장부호 무시 지침을 넣어도 LLM이 매번 지키진 않으므로
+            # 문장부호/공백을 지운 뒤 비교(_normalize_for_noop_check)해서 실제
+            # 단어·어순 차이가 없으면 같은 이유로 버린다.
+            if _normalize_for_noop_check(d.script_text) == _normalize_for_noop_check(
+                d.spoken_text
+            ):
                 logger.warning(
-                    "script_diff: script_text==spoken_text인 no-op deviation 버림: %r", d
+                    "script_diff: 문장부호/공백 차이뿐인 no-op deviation 버림: %r", d
                 )
                 continue
             resolved = _resolve_segment_ms(segments, d.segment_index)

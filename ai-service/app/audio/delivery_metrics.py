@@ -33,19 +33,76 @@ from app.stt.clova_client import TranscriptResult, WordTiming
 
 # 이 값 미만인 단어-간 간격은 정상적인 조음 간격으로 보고 VAD 없이 침묵으로만 집계.
 # 실측 데이터 기준 자연스러운 간격은 0~150ms, 필러 의심 구간은 500ms 이상이었음
-# (AI_설계.md §2-1) — 200~300ms 중간값으로 시작.
-GAP_CANDIDATE_THRESHOLD_MS = 250
+# (AI_설계.md §2-1) — 200~300ms 중간값으로 시작했으나, 2026-09-15 실배포 리포트에서
+# 채움말이 비정상적으로 많이(19회) 잡히는 과탐이 확인되어 350ms로 상향.
+# (2026-09-15 추가 확인) 이후 실배포 리포트(id=50, 대본 일치율 100%인 "잘한" 버전)에서
+# 여전히 14건이 잡혔는데, 14건 전부 gap 길이가 370~650ms로 이미 350ms를 넘는 값들이라
+# 이 임계값을 더 올려도 구조적으로 걸러지지 않음 — 사용자가 직접 확인한 결과 14건
+# 전부 호흡이었음(실제 "음"/"어" 발화 0건). 즉 과탐의 원인은 이 임계값이 아니라
+# VAD "목소리 있음" 판정 쪽(VAD_SLICE_PADDING_MS/VAD_SPEECH_PROB_THRESHOLD)이라는
+# 게 실측으로 확정됨 — 이 값을 추가로 올리는 시도는 하지 않음.
+GAP_CANDIDATE_THRESHOLD_MS = 350
 
 # 이 값 이상의 침묵 구간(VAD로 "목소리 없음" 확인된 gap)은 long_pauses에 별도 기록.
 LONG_PAUSE_THRESHOLD_MS = 3000
 
 # VAD 슬라이스에 앞뒤로 붙이는 패딩(ms). gap 경계를 딱 맞춰 자르면 발화 시작/끝
-# 부분이 잘려서 VAD가 놓칠 수 있어 여유를 둔다(§2-2).
-VAD_SLICE_PADDING_MS = 100
+# 부분이 잘려서 VAD가 놓칠 수 있어 여유를 둔다(§2-2). 기존 100ms는 인접 단어의
+# 말꼬리 음절까지 슬라이스에 끌어들여 speech duration을 부풀리는 것으로 의심됨
+# (2026-09-15, id=50 리포트에서 필러 14건 전부 호흡으로 확인된 뒤 낮춤) — 단어
+# 경계를 완전히 놓치지 않을 최소한만 남기고 40ms로 축소. 미검증 — 재실행 필요.
+VAD_SLICE_PADDING_MS = 40
 
 # 슬라이스 안에서 이만큼 이상 음성이 감지되어야 "목소리 있음"으로 확정.
-# 너무 낮으면 순간적인 잡음/숨소리를 필러로 오탐할 수 있음.
-VAD_MIN_SPEECH_MS = 60
+# 너무 낮으면 순간적인 잡음/숨소리를 필러로 오탐할 수 있음. 기존 60ms는 VAD_SLICE_
+# PADDING_MS(100ms)로 앞뒤 단어의 말꼬리/날숨이 슬라이스에 섞여 들어왔을 때도 쉽게
+# 넘는 값이라 과탐 원인으로 의심됨 — 2026-09-15 120ms로 상향.
+# (2026-09-15 추가 확인) 그래도 여전히 호흡을 필러로 오탐(14건/14건) — duration
+# 기준만으로는 호흡과 짧은 발화를 못 가른다고 보고, VAD_SPEECH_PROB_THRESHOLD를
+# 별도로 추가함(아래). 이 값 자체는 일단 유지.
+VAD_MIN_SPEECH_MS = 120
+
+# Silero VAD가 "음성"이라고 판단하는 프레임 확률 컷오프(get_speech_timestamps의
+# threshold 파라미터, 기본값 0.5). 기본값을 쓰면 호흡처럼 발화보다 확신도가 낮은
+# 소리도 "음성"으로 잡힐 수 있어 보수적으로 올림(2026-09-15, id=50 리포트의 필러
+# 14건이 전부 호흡으로 확인된 뒤 추가) — 0.65는 첫 시도값.
+# (2026-09-15 추가 확인) VAD_SLICE_PADDING_MS 40ms + 이 값 0.65 조합으로 id=52
+# 재실행 결과 14건 → 7건으로 절반은 줄었으나(효과는 있었음), 남은 7건도 사용자가
+# 직접 들어보고 전부 호흡으로 확인 — Silero의 "음성 확률"만으로는 호흡과 유성
+# 필러("음"/"어")를 완전히 못 가른다는 게 재확인됨. 그래서 아래 pitch 기반 2차
+# 검사(_gap_has_voiced_pitch)를 추가하고, 이 값 자체는 더 안 올림(계속 올리면
+# 진짜 필러까지 놓칠 위험만 커지고 근본 해결이 안 됨).
+VAD_SPEECH_PROB_THRESHOLD = 0.65
+
+# --- 유성음(pitch) 2차 검사 (2026-09-15 추가) ---
+# 호흡은 에너지가 있어도 배음 구조(pitch)가 없는 노이즈인 반면, "음"/"어" 같은
+# 유성 필러는 모음처럼 일정 구간 이상 안정된 pitch를 가진다. Silero VAD 확률
+# 임계값만 올려서는(위 VAD_SPEECH_PROB_THRESHOLD 이력 참고) 호흡을 못 걸러내는
+# 게 실측(id=50: 14/14 호흡, id=52: 잔여 7/7도 호흡)으로 두 번 확인돼서, gap
+# 구간에 이 정도 이상 안정적인 pitch가 잡혀야만 필러로 확정하도록 검사를 더한다.
+# 사람 육성 기본 주파수(F0) 범위를 넉넉하게 잡음.
+VOICED_PITCH_MIN_HZ = 75
+VOICED_PITCH_MAX_HZ = 400
+# 이 이상 pitch가 검출돼야 "발성 있음"으로 인정.
+VOICED_PITCH_MIN_MS = 80
+# librosa.pyin 프레임/홉 크기 — 기본값(frame_length=2048)은 350ms 근처의 짧은
+# gap 슬라이스엔 시간 해상도가 너무 낮아서 더 작은 값으로 지정.
+PITCH_FRAME_LENGTH = 1024
+PITCH_HOP_LENGTH = 256
+
+# librosa.pyin의 프레임별 voiced_prob(유성음 확신도, 0~1) 컷오프.
+# (2026-09-15 실측 3종 세트로 확정) 사용자가 준 두 오디오로 직접 pyin을 돌려
+# voiced_prob 분포를 프레임 단위로 다 찍어봄:
+#   - "잘한거.m4a" 호흡 14개 gap: voiced_prob 최댓값 전부 0.241 이하(잡음 수준).
+#   - "못한거.m4a"의 실제 단어("네"/"그렇습니다" 등, 필러 아님) 4곳: 0.35 컷오프
+#     기준 VOICED_PITCH_MIN_MS(80ms)를 넘는 누적 시간이 전부 0(최대 32ms).
+#   - "못한거.m4a"의 실제 필러(사용자가 직접 짚어준 "음"@31~32s, "어"@42s):
+#     0.35 컷오프에서 각각 336ms/160ms — 80ms 기준을 여유 있게 넘음.
+# 즉 0.35가 세 그룹(호흡/실단어/실필러)을 전부 올바르게 가르는 값으로 확인됨
+# (0.3은 실단어 하나가 96ms로 새서 오탐, 0.4는 "어"가 48ms로 떨어져서 누락).
+# voiced_flag(이진 판정)는 확신도가 낮아도 True가 나와서 호흡을 전혀 못 걸렀던
+# 이전 버전의 원인이었음 — voiced_prob 수치 자체를 비교하는 걸로 교체함.
+PITCH_CONFIDENCE_MIN_PROB = 0.35
 
 # Silero VAD 요구사항.
 SAMPLE_RATE = 16_000
@@ -136,11 +193,49 @@ def _is_voiced(wav: np.ndarray, gap: _Gap) -> bool:
         slice_tensor,
         _get_vad_model(),
         sampling_rate=SAMPLE_RATE,
+        threshold=VAD_SPEECH_PROB_THRESHOLD,
         return_seconds=False,
     )
     total_speech_samples = sum(span["end"] - span["start"] for span in speech_spans)
     total_speech_ms = total_speech_samples * 1000 / SAMPLE_RATE
     return total_speech_ms >= VAD_MIN_SPEECH_MS
+
+
+def _gap_has_voiced_pitch(wav: np.ndarray, gap: _Gap) -> bool:
+    """gap 구간(패딩 없이 순수 gap만)에 안정적인 pitch(유성음)가 있는지 확인한다.
+
+    _is_voiced()는 패딩까지 포함한 슬라이스에 Silero 기준 "음성 에너지"가
+    있는지만 보므로 호흡도 자주 통과한다(2026-09-15 실측, 위 상수 이력 참고).
+    이 함수는 그 2차 검사로, gap 구간 자체에 사람 목소리다운 pitch가 실제로
+    존재하는지 librosa.pyin으로 확인한다 — 호흡은 배음 구조가 없어 pitch가
+    거의 안 잡히고, "음"/"어" 같은 유성 필러는 모음처럼 pitch가 잡힌다는
+    가정.
+    """
+    import librosa
+
+    start_sample = max(0, int(gap.start_ms * SAMPLE_RATE / 1000))
+    end_sample = min(len(wav), int(gap.end_ms * SAMPLE_RATE / 1000))
+    segment = wav[start_sample:end_sample]
+
+    # librosa.pyin은 frame_length보다 짧은 입력에 에러를 내므로, 너무 짧으면
+    # pitch 판단을 못 하는 셈 — 이 경우 보수적으로 "필러 후보 유지"(True)로 둔다.
+    if len(segment) < PITCH_FRAME_LENGTH:
+        return True
+
+    _f0, _voiced_flag, voiced_prob = librosa.pyin(
+        segment,
+        fmin=VOICED_PITCH_MIN_HZ,
+        fmax=VOICED_PITCH_MAX_HZ,
+        sr=SAMPLE_RATE,
+        frame_length=PITCH_FRAME_LENGTH,
+        hop_length=PITCH_HOP_LENGTH,
+    )
+    if voiced_prob is None or len(voiced_prob) == 0:
+        return False
+
+    frame_ms = PITCH_HOP_LENGTH * 1000 / SAMPLE_RATE
+    confident_ms = float(np.count_nonzero(voiced_prob >= PITCH_CONFIDENCE_MIN_PROB)) * frame_ms
+    return confident_ms >= VOICED_PITCH_MIN_MS
 
 
 def classify_gaps(
@@ -166,7 +261,10 @@ def classify_gaps(
             silence_total_ms += gap.duration_ms
             continue
 
-        if _is_voiced(wav, gap):
+        # Silero "음성 에너지 있음"(_is_voiced) + gap 자체에 "pitch 있음"
+        # (_gap_has_voiced_pitch) 둘 다 만족해야 필러로 확정 — 전자만으로는
+        # 호흡도 통과하는 게 실측으로 확인돼서(2026-09-15) 2차 검사를 추가함.
+        if _is_voiced(wav, gap) and _gap_has_voiced_pitch(wav, gap):
             # CLOVA가 텍스트로 남기지 않은 발성 = 그룹A 필러 후보.
             # 정확히 "음"인지 "어"인지는 CLOVA 원문이 없어 구분할 수 없으므로
             # 기타(ETC)로 잡고 text에 표시를 남긴다.
@@ -174,6 +272,11 @@ def classify_gaps(
             fillers.append(
                 Filler(
                     type=FillerType.ETC,
+                    # (2026-09-15 임시) 워커가 실제로 이 코드(pitch 2차 검사 포함)로
+                    # 돌고 있는지 리포트에서 바로 눈으로 확인하기 위한 카나리 표시.
+                    # r/52~54가 pitch 코드 추가 전후로 결과가 완전히 동일해서
+                    # (같은 at_ms/duration_ms 7개) 워커가 새 코드를 실제로 읽고
+                    # 있는지 의심돼 추가함 — 검증되면 원래 텍스트로 되돌릴 것.
                     text="[VAD 감지 · 원문 미상]",
                     at_ms=gap.start_ms,
                     duration_ms=gap.duration_ms,

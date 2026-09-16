@@ -75,7 +75,20 @@ def main() -> None:
     start = time.monotonic()
     try:
         output = run_analysis(analysis_input)
-    except (PptxParseError, SttError, LlmError) as exc:
+    except SttError as exc:
+        # CLOVA 호출 실패는 원인이 다양함(사용량/한도 초과, 도메인 프로비저닝 직후
+        # 일시적 400, 네트워크 오류 등) — clova_client.py가 CLOVA 응답의 실제
+        # message를 그대로 실어서 SttError를 던지므로 exc 메시지에 원인이 보통
+        # 들어있다. 여기서는 그 원문을 그대로 보여주고, 흔한 원인(사용량 초과)
+        # 확인 경로를 같이 안내한다.
+        print(f"\nCLOVA 음성 인식 호출에 실패했습니다: {exc}")
+        print(
+            "→ 네이버클라우드 콘솔(CLOVA Speech)에서 사용량/한도를 확인해보세요. "
+            "도메인을 막 만든 직후라면 프로비저닝 지연으로 인한 일시적 오류일 수도 "
+            "있으니 잠깐 기다렸다 다시 시도해보세요."
+        )
+        sys.exit(1)
+    except (PptxParseError, LlmError) as exc:
         print(f"\n파이프라인 실패: {type(exc).__name__}: {exc}")
         sys.exit(1)
     elapsed = time.monotonic() - start
