@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { StepHeader } from "../../components/StepHeader";
 import { UploadCard } from "./UploadCard";
 import { AudioUploadCard } from "./AudioUploadCard";
@@ -9,6 +9,21 @@ import { usePresentationSession } from "../../session/usePresentationSession";
 import { ApiError } from "../../api/client";
 
 const AUDIO_DURATION_LIMIT_MS = 600_000; // 10분, docs/API_명세서.md §2.2
+
+// 심사용 예시 리포트 — presentation_id/token 준비되면 여기 채우기(비어있으면 섹션 자체가 안 보임).
+const EXAMPLE_REPORTS: { label: string; tone: "good" | "bad"; id: number; token: string }[] = [];
+
+// 심사용 테스트 기능 — PPT/대본은 공통, 음성만 잘한 예시/못한 예시로 다르게 채움.
+const EXAMPLE_SCRIPT = `안녕하세요, 발표 리허설 코치 PTPT를 소개해드리겠습니다. 많은 분들이 발표를 준비하면서 이런 고민을 하십니다. 내가 지금 잘하고 있는 건지, 어디를 고쳐야 하는지 스스로는 알기가 어렵다는 거죠. PTPT는 이 문제를 해결하기 위해 만들었습니다.
+사용 방법은 간단합니다. 발표 슬라이드와 리허설 음성만 올리면, AI가 자동으로 분석해줍니다. 먼저 슬라이드에 적힌 주장이 실제 발화에서 제대로 뒷받침되는지 확인하고, 주제에서 벗어난 이야기나 논리적으로 비약된 부분이 있는지도 짚어줍니다. 그리고 말하기 속도, 침묵 구간, 채움말 사용 빈도 같은 전달력 지표도 함께 제공합니다. 대본이 있다면 실제 발화와 얼마나 차이가 나는지도 비교해드립니다.
+로그인 없이 제목만 입력하면 바로 시작할 수 있고, 분석이 끝나면 링크 하나로 3일간 결과를 확인하실 수 있습니다. 발표 전에 꼭 한 번, PTPT로 리허설해보세요. 감사합니다.`;
+
+async function fetchAsFile(url: string, filename: string, mimeType: string): Promise<File> {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`예시 파일을 불러오지 못했어요 (${res.status})`);
+  const blob = await res.blob();
+  return new File([blob], filename, { type: mimeType });
+}
 
 function SlidesIcon() {
   return (
@@ -42,6 +57,7 @@ export function UploadScreen() {
 
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [loadingExample, setLoadingExample] = useState<"good" | "bad" | null>(null);
 
   useEffect(() => {
     const draft = getDraft();
@@ -66,6 +82,29 @@ export function UploadScreen() {
       setAudioFile(file);
     } catch {
       setDurationError("오디오 길이를 확인하지 못했어요.");
+    }
+  }
+
+  async function fillExample(tone: "good" | "bad") {
+    setLoadingExample(tone);
+    setSubmitError(null);
+    try {
+      setScript(EXAMPLE_SCRIPT);
+      const ppt = await fetchAsFile(
+        "/examples/slides.pptx",
+        "PTPT_예시_슬라이드.pptx",
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      );
+      setSlideFile(ppt);
+
+      const audioUrl = tone === "good" ? "/examples/good.m4a" : "/examples/bad.m4a";
+      const audioName = tone === "good" ? "잘한예시.m4a" : "못한예시.m4a";
+      const audio = await fetchAsFile(audioUrl, audioName, "audio/mp4");
+      await handleAudioSelect(audio);
+    } catch {
+      setSubmitError("예시 자료를 불러오지 못했어요. 다시 시도해주세요.");
+    } finally {
+      setLoadingExample(null);
     }
   }
 
@@ -108,6 +147,29 @@ export function UploadScreen() {
         <p>
           PPT와 음성 파일은 <span className="required-text">필수</span>예요.
         </p>
+      </div>
+
+      <div className="example-fill">
+        <p className="example-fill-title">지금 분석할 자료가 없다면?</p>
+        <p className="field-hint">테스트용 예시 자료로 빠르게 채워보기 (PPT·대본은 동일, 음성만 다름)</p>
+        <div className="example-fill-buttons">
+          <button
+            type="button"
+            className="example-fill-btn tone-good"
+            onClick={() => fillExample("good")}
+            disabled={submitting || loadingExample !== null}
+          >
+            {loadingExample === "good" ? "불러오는 중..." : "잘한 예시로 채우기"}
+          </button>
+          <button
+            type="button"
+            className="example-fill-btn tone-bad"
+            onClick={() => fillExample("bad")}
+            disabled={submitting || loadingExample !== null}
+          >
+            {loadingExample === "bad" ? "불러오는 중..." : "못한 예시로 채우기"}
+          </button>
+        </div>
       </div>
 
       <div className="upload-panel">
@@ -187,6 +249,25 @@ export function UploadScreen() {
           {submitting ? "제출 중..." : "분석 시작하기"}
         </button>
       </div>
+
+      {EXAMPLE_REPORTS.length > 0 && (
+        <div className="example-reports">
+          <p className="field-hint">심사용 예시 리포트</p>
+          <div className="example-reports-links">
+            {EXAMPLE_REPORTS.map((ex) => (
+              <Link
+                key={ex.label}
+                to={`/r/${ex.id}?token=${ex.token}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`example-report-link tone-${ex.tone}`}
+              >
+                {ex.label} 리포트 보기
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

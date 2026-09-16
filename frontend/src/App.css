@@ -749,6 +749,123 @@
   color: var(--text-h);
 }
 
+/* 심사용 예시 리포트 링크 */
+.example-reports {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 4px;
+}
+
+.example-reports-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.example-report-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-h);
+  text-decoration: none;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.example-report-link::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.example-report-link.tone-good::before {
+  background: var(--success);
+}
+
+.example-report-link.tone-bad::before {
+  background: var(--danger);
+}
+
+.example-report-link:hover {
+  border-color: var(--accent-border);
+  background: var(--accent-bg);
+  color: var(--accent);
+}
+
+/* 심사용 테스트 기능 — 예시 자료 자동 채우기 */
+.example-fill {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 14px;
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+}
+
+.example-fill-title {
+  margin: 0;
+  font-weight: 700;
+  color: var(--text-h);
+}
+
+.example-fill-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.example-fill-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 14px 16px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text-h);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.example-fill-btn::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.example-fill-btn.tone-good::before {
+  background: var(--success);
+}
+
+.example-fill-btn.tone-bad::before {
+  background: var(--danger);
+}
+
+.example-fill-btn:hover:not(:disabled) {
+  border-color: var(--accent-border);
+  background: var(--accent-bg);
+  color: var(--accent);
+}
+
+.example-fill-btn:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
 /* STEP 3 */
 .processing-state {
   display: flex;
