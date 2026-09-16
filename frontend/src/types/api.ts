@@ -14,6 +14,7 @@ export type ErrorCode =
   | "MISSING_HEADER"
   | "RATE_LIMIT_EXCEEDED"
   | "ALREADY_SUBMITTED"
+  | "AUDIO_QUOTA_EXCEEDED"
   | "INTERNAL_ERROR"
   | string;
 

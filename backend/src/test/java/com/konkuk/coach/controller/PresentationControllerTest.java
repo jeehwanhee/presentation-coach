@@ -68,7 +68,7 @@ class PresentationControllerTest {
     @Test
     @DisplayName("POST /api/presentations/{id}/submit: 정상이면 202와 상태를 반환한다")
     void submitReturns202() throws Exception {
-        when(presentationService.submit(eq(1L), eq("token123"), any()))
+        when(presentationService.submit(eq(1L), eq("token123"), any(), any()))
                 .thenReturn(new PresentationSubmitResponse(1L, "PROCESSING"));
 
         mockMvc.perform(post("/api/presentations/1/submit")
@@ -85,7 +85,7 @@ class PresentationControllerTest {
     @Test
     @DisplayName("POST /api/presentations/{id}/submit: 존재하지 않는 id면 404")
     void submitNotFoundReturns404() throws Exception {
-        when(presentationService.submit(eq(999L), eq("token123"), any()))
+        when(presentationService.submit(eq(999L), eq("token123"), any(), any()))
                 .thenThrow(new BusinessException(PresentationErrorCode.PRESENTATION_ID_NOT_FOUND));
 
         mockMvc.perform(post("/api/presentations/999/submit")
@@ -101,7 +101,7 @@ class PresentationControllerTest {
     @Test
     @DisplayName("POST /api/presentations/{id}/submit: 토큰이 다르면 403")
     void submitWithWrongTokenReturns403() throws Exception {
-        when(presentationService.submit(eq(1L), eq("wrong"), any()))
+        when(presentationService.submit(eq(1L), eq("wrong"), any(), any()))
                 .thenThrow(new BusinessException(PresentationErrorCode.PRESENTATION_NOT_FOUND));
 
         mockMvc.perform(post("/api/presentations/1/submit")
@@ -117,7 +117,7 @@ class PresentationControllerTest {
     @Test
     @DisplayName("POST /api/presentations/{id}/submit: 오디오 길이 초과면 400")
     void submitAudioDurationExceededReturns400() throws Exception {
-        when(presentationService.submit(eq(1L), eq("token123"), any()))
+        when(presentationService.submit(eq(1L), eq("token123"), any(), any()))
                 .thenThrow(new BusinessException(PresentationErrorCode.AUDIO_DURATION_EXCEEDED));
 
         mockMvc.perform(post("/api/presentations/1/submit")

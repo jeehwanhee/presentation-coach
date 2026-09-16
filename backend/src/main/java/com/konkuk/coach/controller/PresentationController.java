@@ -1,11 +1,13 @@
 package com.konkuk.coach.controller;
 
+import com.konkuk.coach.config.ClientIpResolver;
 import com.konkuk.coach.dto.request.PresentationCreateRequest;
 import com.konkuk.coach.dto.request.PresentationSubmitRequest;
 import com.konkuk.coach.dto.response.PresentationCreateResponse;
 import com.konkuk.coach.dto.response.PresentationReportResponse;
 import com.konkuk.coach.dto.response.PresentationSubmitResponse;
 import com.konkuk.coach.service.PresentationService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -32,11 +34,13 @@ public class PresentationController {
     public ResponseEntity<PresentationSubmitResponse> submit(
             @PathVariable Long id,
             @RequestHeader("X-Result-Token") String resultToken,
-            @Valid @RequestBody PresentationSubmitRequest request
+            @Valid @RequestBody PresentationSubmitRequest request,
+            HttpServletRequest httpRequest
     ) {
+        String clientIp = ClientIpResolver.resolve(httpRequest);
         return ResponseEntity
                 .status(HttpStatus.ACCEPTED)
-                .body(presentationService.submit(id, resultToken, request));
+                .body(presentationService.submit(id, resultToken, request, clientIp));
     }
 
     @GetMapping("/{presentation_id}")

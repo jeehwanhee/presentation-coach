@@ -171,6 +171,9 @@ export function UploadScreen() {
             {loadingExample === "bad" ? "불러오는 중..." : "못한 예시로 채우기"}
           </button>
         </div>
+        <a href="/examples/slides.pptx" download="PTPT_예시_슬라이드.pptx" className="example-fill-download">
+          예시 발표자료(PPT) 다운로드
+        </a>
       </div>
 
       <div className="upload-panel">

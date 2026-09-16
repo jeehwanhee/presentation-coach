@@ -1,5 +1,6 @@
 package com.konkuk.coach.service;
 
+import com.konkuk.coach.config.AudioQuotaGuard;
 import com.konkuk.coach.domain.Presentation;
 import com.konkuk.coach.domain.PresentationStatus;
 import com.konkuk.coach.dto.request.AnalysisCallbackRequest;
@@ -48,11 +49,15 @@ class PresentationServiceTest {
     @Mock private ObjectMapper objectMapper;
 
     private PresentationService presentationService;
+    private AudioQuotaGuard audioQuotaGuard;
+
+    private static final String TEST_IP = "127.0.0.1";
 
     @BeforeEach
     void setUp() {
+        audioQuotaGuard = new AudioQuotaGuard();
         presentationService = new PresentationService(
-                presentationRepository, s3Client, s3Presigner, sqsClient, objectMapper);
+                presentationRepository, s3Client, s3Presigner, sqsClient, objectMapper, audioQuotaGuard);
         ReflectionTestUtils.setField(presentationService, "bucket", "test-bucket");
         ReflectionTestUtils.setField(presentationService, "queueUrl", "https://sqs.test/queue");
         ReflectionTestUtils.setField(presentationService, "frontBaseUrl", "https://front.test");
@@ -100,7 +105,7 @@ class PresentationServiceTest {
         when(presentationRepository.save(any(Presentation.class))).thenReturn(presentation);
         when(objectMapper.writeValueAsString(any(SqsJobMessage.class))).thenReturn("{}");
 
-        PresentationSubmitResponse response = presentationService.submit(1L, "token123", new PresentationSubmitRequest(30_000));
+        PresentationSubmitResponse response = presentationService.submit(1L, "token123", new PresentationSubmitRequest(30_000), TEST_IP);
 
         assertThat(response.status()).isEqualTo("PROCESSING");
         assertThat(presentation.getStatus()).isEqualTo(PresentationStatus.PROCESSING);
@@ -113,7 +118,7 @@ class PresentationServiceTest {
         when(presentationRepository.findById(999L)).thenReturn(Optional.empty());
 
         BusinessException e = assertThrows(BusinessException.class,
-                () -> presentationService.submit(999L, "token123", new PresentationSubmitRequest(1000)));
+                () -> presentationService.submit(999L, "token123", new PresentationSubmitRequest(1000), TEST_IP));
 
         assertThat(e.getErrorCode()).isEqualTo(PresentationErrorCode.PRESENTATION_ID_NOT_FOUND);
     }
@@ -127,7 +132,7 @@ class PresentationServiceTest {
         when(presentationRepository.findById(1L)).thenReturn(Optional.of(presentation));
 
         BusinessException e = assertThrows(BusinessException.class,
-                () -> presentationService.submit(1L, "wrong-token", new PresentationSubmitRequest(30_000)));
+                () -> presentationService.submit(1L, "wrong-token", new PresentationSubmitRequest(30_000), TEST_IP));
 
         assertThat(e.getErrorCode()).isEqualTo(PresentationErrorCode.PRESENTATION_NOT_FOUND);
         verify(sqsClient, never()).sendMessage(any(SendMessageRequest.class));
@@ -143,7 +148,7 @@ class PresentationServiceTest {
         when(presentationRepository.findById(1L)).thenReturn(Optional.of(presentation));
 
         BusinessException e = assertThrows(BusinessException.class,
-                () -> presentationService.submit(1L, "token123", new PresentationSubmitRequest(30_000)));
+                () -> presentationService.submit(1L, "token123", new PresentationSubmitRequest(30_000), TEST_IP));
 
         assertThat(e.getErrorCode()).isEqualTo(PresentationErrorCode.ALREADY_SUBMITTED);
         verify(sqsClient, never()).sendMessage(any(SendMessageRequest.class));
@@ -158,9 +163,26 @@ class PresentationServiceTest {
         when(presentationRepository.findById(1L)).thenReturn(Optional.of(presentation));
 
         BusinessException e = assertThrows(BusinessException.class,
-                () -> presentationService.submit(1L, "token123", new PresentationSubmitRequest(600_001)));
+                () -> presentationService.submit(1L, "token123", new PresentationSubmitRequest(600_001), TEST_IP));
 
         assertThat(e.getErrorCode()).isEqualTo(PresentationErrorCode.AUDIO_DURATION_EXCEEDED);
+        verify(sqsClient, never()).sendMessage(any(SendMessageRequest.class));
+    }
+
+    @Test
+    @DisplayName("submit: 같은 IP의 하루 누적 음성 길이(30분)를 초과하면 예외")
+    void submitAudioQuotaExceededThrowsException() {
+        Presentation presentation = new Presentation();
+        presentation.setId(1L);
+        presentation.setResultToken("token123");
+        when(presentationRepository.findById(1L)).thenReturn(Optional.of(presentation));
+
+        audioQuotaGuard.tryConsume(TEST_IP, 29 * 60_000L); // 29분 미리 소진 — 1분만 남음
+
+        BusinessException e = assertThrows(BusinessException.class,
+                () -> presentationService.submit(1L, "token123", new PresentationSubmitRequest(120_000), TEST_IP)); // 2분 요청
+
+        assertThat(e.getErrorCode()).isEqualTo(PresentationErrorCode.AUDIO_QUOTA_EXCEEDED);
         verify(sqsClient, never()).sendMessage(any(SendMessageRequest.class));
     }
 

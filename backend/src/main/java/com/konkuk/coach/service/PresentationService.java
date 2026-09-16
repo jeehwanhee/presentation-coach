@@ -1,5 +1,6 @@
 package com.konkuk.coach.service;
 
+import com.konkuk.coach.config.AudioQuotaGuard;
 import com.konkuk.coach.domain.Presentation;
 import com.konkuk.coach.domain.PresentationStatus;
 import com.konkuk.coach.dto.request.AnalysisCallbackRequest;
@@ -40,6 +41,7 @@ public class PresentationService {
     private final S3Presigner s3Presigner;
     private final SqsClient sqsClient;
     private final ObjectMapper objectMapper;
+    private final AudioQuotaGuard audioQuotaGuard;
 
     @Value("${app.s3.bucket}") private String bucket;
     @Value("${app.sqs.queue-url}") private String queueUrl;
@@ -77,7 +79,7 @@ public class PresentationService {
     }
 
     @Transactional
-    public PresentationSubmitResponse submit(Long id, String resultToken, PresentationSubmitRequest request) {
+    public PresentationSubmitResponse submit(Long id, String resultToken, PresentationSubmitRequest request, String clientIp) {
         Presentation presentation = presentationRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(PresentationErrorCode.PRESENTATION_ID_NOT_FOUND));
 
@@ -92,6 +94,10 @@ public class PresentationService {
         if (request.audioDurationMs() > AUDIO_LIMIT_MS) {
             throw new BusinessException(PresentationErrorCode.AUDIO_DURATION_EXCEEDED,
                     "오디오 길이(" + request.audioDurationMs() + "ms)가 10분 제한을 초과했습니다.");
+        }
+
+        if (!audioQuotaGuard.tryConsume(clientIp, request.audioDurationMs())) {
+            throw new BusinessException(PresentationErrorCode.AUDIO_QUOTA_EXCEEDED);
         }
 
         presentation.setAudioDurationMs(request.audioDurationMs());

@@ -45,7 +45,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
             return;
         }
 
-        String key = resolveClientIp(request) + ":" + action;
+        String key = ClientIpResolver.resolve(request) + ":" + action;
         Bucket bucket = buckets.computeIfAbsent(key, k -> newDailyBucket());
 
         ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(1);
@@ -82,11 +82,4 @@ public class RateLimitFilter extends OncePerRequestFilter {
         return Bucket.builder().addLimit(limit).build();
     }
 
-    private String resolveClientIp(HttpServletRequest request) {
-        String forwardedFor = request.getHeader("X-Forwarded-For");
-        if (forwardedFor != null && !forwardedFor.isBlank()) {
-            return forwardedFor.split(",")[0].trim();
-        }
-        return request.getRemoteAddr();
-    }
 }

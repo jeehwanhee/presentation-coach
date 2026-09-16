@@ -80,6 +80,7 @@
 - 토큰 불일치 → **403**.
 - **`status`가 `PENDING`이 아니면(이미 submit됨) → 409** `{ "error": { "code": "ALREADY_SUBMITTED", "message": "..." } }`. 같은 id로 submit을 반복 호출해 SQS job을 중복 발행(=AI 비용 중복 발생)하는 것을 막기 위함 — 한 presentation당 submit은 정확히 한 번만 성공한다.
 - 검증: `audio_duration_ms` ≤ **600000(10분 하드리밋)**, 초과 시 400.
+- **IP당 하루 누적 오디오 30분 상한 → 초과 시 429** `{ "error": { "code": "AUDIO_QUOTA_EXCEEDED", "message": "..." } }`. §1의 "IP당 하루 10회" rate limit과 별개 — 1회당 10분짜리를 10번 다 채우면 하루 100분까지 AI 비용이 나갈 수 있어서, 요청 횟수와 무관하게 누적 오디오 총량 자체를 추가로 제한한다(`AudioQuotaGuard`, 인메모리 Bucket4j, 인스턴스 1대 기준).
 - 서버가 SQS에 잡 메시지 push(§3.1). **push 성공 시점에 `status`를 `PROCESSING`으로 전환**해 응답한다 — 워커가 별도로 "시작했다"를 알리는 콜백은 없음. `PENDING`은 생성 후 아직 submit 안 된 상태만을 의미.
 
 ### 2.3 상태 폴링 + 리포트 조회
